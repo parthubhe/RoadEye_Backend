@@ -1,0 +1,1599 @@
+================================================================================
+PYTHON CODEBASE EXPORT
+Source Folder: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\scripts
+Exported On : 2026-02-20 00:46:29.317339
+================================================================================
+
+================================================================================
+FILE: analyze_dataset_balance.py
+================================================================================
+
+import os
+from collections import defaultdict, Counter
+import numpy as np
+
+ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified"
+
+SPLITS = ["train", "val", "test"]
+
+CLASS_NAMES = {
+    0: "night_pothole",
+    1: "pothole"
+}
+
+print("\n================ DATASET BALANCE ANALYSIS ================\n")
+
+global_box_counter = Counter()
+global_image_counter = Counter()
+source_counter = Counter()
+
+for split in SPLITS:
+    print(f"\n----- SPLIT: {split.upper()} -----")
+
+    img_dir = os.path.join(ROOT, "images", split)
+    lbl_dir = os.path.join(ROOT, "labels", split)
+
+    box_counter = Counter()
+    image_counter = Counter()
+
+    total_images = 0
+    total_boxes = 0
+
+    for file in os.listdir(lbl_dir):
+        if not file.endswith(".txt"):
+            continue
+
+        total_images += 1
+        source_prefix = file.split("_")[0]  # kg, mwpd, rf
+        source_counter[source_prefix] += 1
+
+        with open(os.path.join(lbl_dir, file), "r") as f:
+            lines = [l.strip() for l in f if l.strip()]
+
+        classes_in_image = set()
+
+        for line in lines:
+            cls = int(line.split()[0])
+            box_counter[cls] += 1
+            global_box_counter[cls] += 1
+            classes_in_image.add(cls)
+            total_boxes += 1
+
+        for cls in classes_in_image:
+            image_counter[cls] += 1
+            global_image_counter[cls] += 1
+
+    print(f"Images: {total_images}")
+    print(f"Total Boxes: {total_boxes}")
+
+    print("\nBox Distribution:")
+    for cls in sorted(box_counter):
+        print(
+            f"  {CLASS_NAMES[cls]}: "
+            f"{box_counter[cls]} boxes "
+            f"({box_counter[cls]/total_boxes*100:.2f}%)"
+        )
+
+    print("\nImage Distribution (images containing class):")
+    for cls in sorted(image_counter):
+        print(
+            f"  {CLASS_NAMES[cls]}: "
+            f"{image_counter[cls]} images "
+            f"({image_counter[cls]/total_images*100:.2f}%)"
+        )
+
+print("\n================ GLOBAL STATS ================\n")
+
+total_global_boxes = sum(global_box_counter.values())
+total_global_images = sum(global_image_counter.values())
+
+print("Global Box Distribution:")
+for cls in sorted(global_box_counter):
+    print(
+        f"  {CLASS_NAMES[cls]}: "
+        f"{global_box_counter[cls]} boxes "
+        f"({global_box_counter[cls]/total_global_boxes*100:.2f}%)"
+    )
+
+print("\nGlobal Image Distribution:")
+for cls in sorted(global_image_counter):
+    print(
+        f"  {CLASS_NAMES[cls]}: "
+        f"{global_image_counter[cls]} images"
+    )
+
+print("\nSource Distribution:")
+for src, count in source_counter.items():
+    print(f"  {src}: {count} images")
+
+# Imbalance ratio
+if len(global_box_counter) == 2:
+    cls0 = global_box_counter[0]
+    cls1 = global_box_counter[1]
+    ratio = max(cls0, cls1) / min(cls0, cls1)
+    print(f"\n⚠ Class imbalance ratio (max/min): {ratio:.2f}x")
+
+print("\n=================================================\n")
+
+================================================================================
+FILE: augment_roadeye_unified.py
+================================================================================
+
+import os
+import cv2
+import albumentations as A
+import shutil
+import random
+from tqdm import tqdm
+
+# -------------------------------
+# CONFIG
+# -------------------------------
+SRC_ROOT = r"Datasets\RoadEyeUnified"
+DST_ROOT = r"Datasets\RoadEyeUnifiedAug"
+
+SPLITS = ["train", "val"]   # never augment test
+AUGS_PER_IMAGE = 3
+IMG_EXTS = [".jpg", ".jpeg", ".png"]
+
+random.seed(42)
+
+# -------------------------------
+# AUGMENTATION FACTORY
+# -------------------------------
+def build_augmenter():
+    return A.Compose(
+        [
+            # -----------------------
+            # Lighting (day / night)
+            # -----------------------
+            A.OneOf([
+                A.RandomBrightnessContrast(
+                    brightness_limit=random.uniform(0.2, 0.45),
+                    contrast_limit=random.uniform(0.2, 0.45)
+                ),
+                A.RandomGamma(
+                    gamma_limit=(
+                        random.randint(60, 90),    # darker
+                        random.randint(110, 160)  # brighter
+                    )
+                ),
+            ], p=0.7),
+
+            # -----------------------
+            # Blur (motion / focus)
+            # -----------------------
+            A.OneOf([
+                A.MotionBlur(
+                    blur_limit=random.choice([7, 9, 11, 13, 15])
+                ),
+                A.GaussianBlur(
+                    blur_limit=random.choice([3, 5, 7])
+                ),
+            ], p=0.5),
+
+            # -----------------------
+            # Weather
+            # -----------------------
+            A.OneOf([
+                A.RandomRain(
+                    brightness_coefficient=random.uniform(0.7, 0.9),
+                    rain_type="heavy"
+                ),
+                A.RandomFog(
+                    fog_coef_range=(0.1, 0.35)
+                ),
+            ], p=0.3),
+
+            # -----------------------
+            # Shadows
+            # -----------------------
+            A.RandomShadow(
+                shadow_roi=(0, 0.5, 1, 1),
+                num_shadows_limit=(1, 2),
+                shadow_dimension=5,
+                p=0.3
+            ),
+
+            # -----------------------
+            # Perspective (bumps)
+            # -----------------------
+            A.Perspective(
+                scale=(0.03, 0.08),
+                keep_size=True,
+                p=0.3
+            ),
+
+            # -----------------------
+            # Sensor noise
+            # -----------------------
+            A.GaussNoise(
+                std_range=(0.01, 0.05),  # MUST be 0–1
+                p=0.4
+            ),
+
+            # -----------------------
+            # Mobile compression
+            # -----------------------
+            A.ImageCompression(
+                quality_range=(35, 75),
+                p=0.5
+            ),
+        ],
+        bbox_params=A.BboxParams(
+            format="yolo",
+            label_fields=["class_labels"],
+            min_visibility=0.25,
+            clip=True
+        )
+    )
+
+# -------------------------------
+# LABEL HELPERS
+# -------------------------------
+def load_labels(label_path):
+    boxes, classes = [], []
+    with open(label_path) as f:
+        for line in f:
+            c, x, y, w, h = map(float, line.strip().split())
+            boxes.append([x, y, w, h])
+            classes.append(int(c))
+    return boxes, classes
+
+def save_labels(path, boxes, classes):
+    with open(path, "w") as f:
+        for c, (x, y, w, h) in zip(classes, boxes):
+            f.write(f"{c} {x:.6f} {y:.6f} {w:.6f} {h:.6f}\n")
+
+# -------------------------------
+# MAIN PIPELINE
+# -------------------------------
+for split in SPLITS:
+    img_src = os.path.join(SRC_ROOT, "images", split)
+    lbl_src = os.path.join(SRC_ROOT, "labels", split)
+
+    img_dst = os.path.join(DST_ROOT, "images", split)
+    lbl_dst = os.path.join(DST_ROOT, "labels", split)
+
+    os.makedirs(img_dst, exist_ok=True)
+    os.makedirs(lbl_dst, exist_ok=True)
+
+    # Copy originals
+    for f in os.listdir(img_src):
+        shutil.copy(os.path.join(img_src, f), img_dst)
+    for f in os.listdir(lbl_src):
+        shutil.copy(os.path.join(lbl_src, f), lbl_dst)
+
+    # Augment
+    for img_name in tqdm(os.listdir(img_src), desc=f"Augmenting {split}"):
+        if not any(img_name.lower().endswith(ext) for ext in IMG_EXTS):
+            continue
+
+        base = os.path.splitext(img_name)[0]
+        img_path = os.path.join(img_src, img_name)
+        lbl_path = os.path.join(lbl_src, base + ".txt")
+
+        if not os.path.exists(lbl_path):
+            continue
+
+        image = cv2.imread(img_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        boxes, classes = load_labels(lbl_path)
+        if len(boxes) == 0:
+            continue
+
+        for i in range(AUGS_PER_IMAGE):
+            augmenter = build_augmenter()
+
+            try:
+                augmented = augmenter(
+                    image=image,
+                    bboxes=boxes,
+                    class_labels=classes
+                )
+            except Exception:
+                continue
+
+            if len(augmented["bboxes"]) == 0:
+                continue
+
+            out_img = f"{base}_aug{i}.jpg"
+            out_lbl = f"{base}_aug{i}.txt"
+
+            cv2.imwrite(
+                os.path.join(img_dst, out_img),
+                cv2.cvtColor(augmented["image"], cv2.COLOR_RGB2BGR)
+            )
+            save_labels(
+                os.path.join(lbl_dst, out_lbl),
+                augmented["bboxes"],
+                augmented["class_labels"]
+            )
+
+print("✅ Augmented dataset created at:", DST_ROOT)
+
+================================================================================
+FILE: augment_singleclass.py
+================================================================================
+
+import os
+import cv2
+import albumentations as A
+import shutil
+import random
+from tqdm import tqdm
+
+SRC_ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_SingleClass"
+DST_ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_SingleClass_Aug"
+
+SPLITS = ["train", "val"]   # NEVER augment test
+AUGS_PER_IMAGE = 1          # will bring ~12k → ~18k
+
+IMG_EXTS = [".jpg", ".jpeg", ".png"]
+random.seed(42)
+
+def build_augmenter():
+    return A.Compose(
+        [
+            # 1️⃣ Gamma
+            A.RandomGamma(gamma_limit=(70, 150), p=0.7),
+
+            # 2️⃣ Blur
+            A.OneOf([
+                A.MotionBlur(blur_limit=7),
+                A.GaussianBlur(blur_limit=5)
+            ], p=0.4),
+
+            # 3️⃣ Squish / Stretch
+            A.Affine(
+                scale=(0.8, 1.2),
+                keep_ratio=False,
+                p=0.5
+            ),
+
+            # 4️⃣ Small rotation
+            A.Rotate(
+                limit=8,
+                border_mode=cv2.BORDER_CONSTANT,
+                p=0.4
+            )
+        ],
+        bbox_params=A.BboxParams(
+            format="yolo",
+            label_fields=["class_labels"],
+            min_visibility=0.3,
+            clip=True
+        )
+    )
+
+def load_labels(path):
+    boxes, classes = [], []
+    with open(path) as f:
+        for line in f:
+            c, x, y, w, h = map(float, line.strip().split())
+            boxes.append([x, y, w, h])
+            classes.append(int(c))
+    return boxes, classes
+
+def save_labels(path, boxes, classes):
+    with open(path, "w") as f:
+        for c, (x, y, w, h) in zip(classes, boxes):
+            f.write(f"{c} {x:.6f} {y:.6f} {w:.6f} {h:.6f}\n")
+
+for split in SPLITS:
+
+    img_src = os.path.join(SRC_ROOT, "images", split)
+    lbl_src = os.path.join(SRC_ROOT, "labels", split)
+
+    img_dst = os.path.join(DST_ROOT, "images", split)
+    lbl_dst = os.path.join(DST_ROOT, "labels", split)
+
+    os.makedirs(img_dst, exist_ok=True)
+    os.makedirs(lbl_dst, exist_ok=True)
+
+    # Copy originals
+    for f in os.listdir(img_src):
+        shutil.copy(os.path.join(img_src, f), img_dst)
+    for f in os.listdir(lbl_src):
+        shutil.copy(os.path.join(lbl_src, f), lbl_dst)
+
+    # Augment
+    for img_name in tqdm(os.listdir(img_src), desc=f"Augmenting {split}"):
+
+        if not any(img_name.lower().endswith(ext) for ext in IMG_EXTS):
+            continue
+
+        base = os.path.splitext(img_name)[0]
+        img_path = os.path.join(img_src, img_name)
+        lbl_path = os.path.join(lbl_src, base + ".txt")
+
+        if not os.path.exists(lbl_path):
+            continue
+
+        image = cv2.imread(img_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        boxes, classes = load_labels(lbl_path)
+
+        if len(boxes) == 0:
+            continue
+
+        augmenter = build_augmenter()
+
+        augmented = augmenter(
+            image=image,
+            bboxes=boxes,
+            class_labels=classes
+        )
+
+        if len(augmented["bboxes"]) == 0:
+            continue
+
+        out_img = f"{base}_aug.jpg"
+        out_lbl = f"{base}_aug.txt"
+
+        cv2.imwrite(
+            os.path.join(img_dst, out_img),
+            cv2.cvtColor(augmented["image"], cv2.COLOR_RGB2BGR)
+        )
+
+        save_labels(
+            os.path.join(lbl_dst, out_lbl),
+            augmented["bboxes"],
+            augmented["class_labels"]
+        )
+
+print("✅ Augmented dataset created.")
+
+================================================================================
+FILE: conda_commands.py
+================================================================================
+
+""" .pt to onnx conversion command:
+yolo export model="D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt" format=onnx imgsz=640
+"""
+""".pt to tflite conversion command:
+yolo export model="runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt" format=tflite imgsz=640
+"""
+from ultralytics import YOLO
+
+model = YOLO(
+    r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt"
+)
+
+model.export(
+    format="tflite",
+    imgsz=640
+)
+
+================================================================================
+FILE: convert_kaggle_voc_to_yolo.py
+================================================================================
+
+import os
+import xml.etree.ElementTree as ET
+
+ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiviewPotholeDataset"
+VOC_DIR = os.path.join(ROOT, "annotations")
+OUT_DIR = os.path.join(ROOT, "labels_yolo")
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+CLASS_MAP = {
+    "pothole": 1
+}
+
+for file in os.listdir(VOC_DIR):
+    if not file.endswith(".xml"):
+        continue
+
+    tree = ET.parse(os.path.join(VOC_DIR, file))
+    root = tree.getroot()
+
+    size = root.find("size")
+    w = int(size.find("width").text)
+    h = int(size.find("height").text)
+
+    yolo_lines = []
+
+    for obj in root.findall("object"):
+        cls = obj.find("name").text
+        if cls not in CLASS_MAP:
+            continue
+
+        cid = CLASS_MAP[cls]
+        box = obj.find("bndbox")
+
+        xmin = float(box.find("xmin").text)
+        ymin = float(box.find("ymin").text)
+        xmax = float(box.find("xmax").text)
+        ymax = float(box.find("ymax").text)
+
+        xc = ((xmin + xmax) / 2) / w
+        yc = ((ymin + ymax) / 2) / h
+        bw = (xmax - xmin) / w
+        bh = (ymax - ymin) / h
+
+        yolo_lines.append(f"{cid} {xc:.6f} {yc:.6f} {bw:.6f} {bh:.6f}")
+
+    out_path = os.path.join(OUT_DIR, file.replace(".xml", ".txt"))
+    with open(out_path, "w") as f:
+        f.write("\n".join(yolo_lines))
+
+print("✅ Kaggle VOC converted to YOLO (pothole=1)")
+
+================================================================================
+FILE: convert_to_single_class.py
+================================================================================
+
+import os
+import shutil
+
+INPUT_DIR = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified"
+OUTPUT_DIR = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_SingleClass"
+
+SPLITS = ["train", "val", "test"]
+
+def convert_labels(src_lbl, dst_lbl):
+    with open(src_lbl, "r") as f:
+        lines = f.readlines()
+
+    new_lines = []
+    for line in lines:
+        parts = line.strip().split()
+        if len(parts) != 5:
+            continue
+
+        # Force class = 0 (single pothole class)
+        new_line = "0 " + " ".join(parts[1:])
+        new_lines.append(new_line)
+
+    with open(dst_lbl, "w") as f:
+        f.write("\n".join(new_lines))
+
+for split in SPLITS:
+    print(f"Processing {split}...")
+
+    img_src = os.path.join(INPUT_DIR, "images", split)
+    lbl_src = os.path.join(INPUT_DIR, "labels", split)
+
+    img_dst = os.path.join(OUTPUT_DIR, "images", split)
+    lbl_dst = os.path.join(OUTPUT_DIR, "labels", split)
+
+    os.makedirs(img_dst, exist_ok=True)
+    os.makedirs(lbl_dst, exist_ok=True)
+
+    for img_name in os.listdir(img_src):
+        shutil.copy(os.path.join(img_src, img_name),
+                    os.path.join(img_dst, img_name))
+
+    for lbl_name in os.listdir(lbl_src):
+        convert_labels(
+            os.path.join(lbl_src, lbl_name),
+            os.path.join(lbl_dst, lbl_name)
+        )
+
+print("✅ Single-class dataset created.")
+
+================================================================================
+FILE: convert_yolo_to_coco.py
+================================================================================
+
+import os
+import json
+import shutil
+import yaml
+from PIL import Image
+from tqdm import tqdm
+
+# -------------------------------------------------
+# CONFIG
+# -------------------------------------------------
+DATASET_ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_SingleClass_Aug"
+YAML_PATH = os.path.join(DATASET_ROOT, "roadeye.yaml")
+SPLITS = ["train", "val"]
+
+OUTPUT_ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_SingleClass_RFDETR_Aug"
+
+# -------------------------------------------------
+# LOAD CLASS NAMES FROM YAML (SAFE WAY)
+# -------------------------------------------------
+with open(YAML_PATH, "r") as f:
+    data = yaml.safe_load(f)
+
+# Ensures correct class order (0,1,...)
+CLASSES = [data["names"][k] for k in sorted(data["names"].keys())]
+
+print("Loaded classes:", CLASSES)
+
+# -------------------------------------------------
+# CONVERSION FUNCTION
+# -------------------------------------------------
+def convert_split(split):
+
+    print(f"\nProcessing {split} split...")
+
+    images_path = os.path.join(DATASET_ROOT, "images", split)
+    labels_path = os.path.join(DATASET_ROOT, "labels", split)
+
+    split_output_dir = os.path.join(OUTPUT_ROOT, split)
+    images_output_dir = os.path.join(split_output_dir, "images")
+
+    os.makedirs(images_output_dir, exist_ok=True)
+
+    coco_output = {
+        "images": [],
+        "annotations": [],
+        "categories": []
+    }
+
+    # Add categories
+    for idx, cls in enumerate(CLASSES):
+        coco_output["categories"].append({
+            "id": idx,
+            "name": cls,
+            "supercategory": "object"
+        })
+
+
+    annotation_id = 0
+    image_id = 0
+
+    image_files = os.listdir(images_path)
+
+    for img_file in tqdm(image_files):
+
+        if not img_file.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
+
+        img_path = os.path.join(images_path, img_file)
+        label_file = os.path.splitext(img_file)[0] + ".txt"
+        label_path = os.path.join(labels_path, label_file)
+
+        # Copy image to RF-DETR folder
+        shutil.copy2(img_path, os.path.join(images_output_dir, img_file))
+
+        # Read image size
+        img = Image.open(img_path)
+        width, height = img.size
+
+        coco_output["images"].append({
+            "id": image_id,
+            "file_name": f"images/{img_file}",
+            "width": width,
+            "height": height
+        })
+
+        # If label exists, convert
+        if os.path.exists(label_path):
+
+            with open(label_path, "r") as f:
+                lines = f.readlines()
+
+            for line in lines:
+                cls, x, y, w, h = map(float, line.strip().split())
+
+                # YOLO → COCO conversion
+                x_min = (x - w / 2) * width
+                y_min = (y - h / 2) * height
+                box_width = w * width
+                box_height = h * height
+
+                coco_output["annotations"].append({
+                    "id": annotation_id,
+                    "image_id": image_id,
+                    "category_id": int(cls),
+                    "bbox": [x_min, y_min, box_width, box_height],
+                    "area": box_width * box_height,
+                    "iscrowd": 0
+                })
+
+                annotation_id += 1
+
+        image_id += 1
+
+    # Save JSON
+    output_json = os.path.join(split_output_dir, "annotations.json")
+
+    with open(output_json, "w") as f:
+        json.dump(coco_output, f, indent=4)
+
+    print(f"{split} conversion complete → {output_json}")
+
+
+# -------------------------------------------------
+# MAIN
+# -------------------------------------------------
+if __name__ == "__main__":
+
+    os.makedirs(OUTPUT_ROOT, exist_ok=True)
+
+    for split in SPLITS:
+        convert_split(split)
+
+    print("\n✅ YOLO → COCO conversion finished successfully!")
+
+================================================================================
+FILE: demo_augmentations.py
+================================================================================
+
+import cv2
+import matplotlib.pyplot as plt
+import albumentations as A
+import numpy as np
+import os
+
+# -------------------------------
+# CONFIG
+# -------------------------------
+IMAGE_PATH = r"D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\Datasets\\RoadEyeUnified\\images\\train\\kg_0000055.png"  # <-- put a pothole image here
+SAVE_OUTPUT = False        # set True if you want saved images
+OUT_DIR = "augmentation_demo"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# -------------------------------
+# LOAD IMAGE
+# -------------------------------
+image = cv2.imread(IMAGE_PATH)
+if image is None:
+    raise FileNotFoundError(f"Could not load image: {IMAGE_PATH}")
+
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+# -------------------------------
+# AUGMENTATION PIPELINE
+# -------------------------------
+augmentations = {
+    "Original": A.Compose([]),
+
+    "Brightness / Contrast": A.Compose([
+        A.RandomBrightnessContrast(
+            brightness_limit=0.35,
+            contrast_limit=0.35,
+            p=1.0
+        )
+    ]),
+
+    "Gamma (Low Light)": A.Compose([
+        A.RandomGamma(
+            gamma_limit=(40, 120),
+            p=1.0
+        )
+    ]),
+
+    "Gaussian Blur": A.Compose([
+        A.GaussianBlur(blur_limit=(3, 7), p=1.0)
+    ]),
+
+    "Motion Blur": A.Compose([
+        A.MotionBlur(blur_limit=15, p=1.0)
+    ]),
+
+    "Rain": A.Compose([
+        A.RandomRain(
+            blur_value=3,
+            brightness_coefficient=0.9,
+            rain_type="heavy",
+            p=1.0
+        )
+    ]),
+
+    "Fog / Haze": A.Compose([
+        A.RandomFog(
+            fog_coef_lower=0.3,
+            fog_coef_upper=0.6,
+            alpha_coef=0.08,
+            p=1.0
+        )
+    ]),
+
+    "Shadow": A.Compose([
+        A.RandomShadow(
+            shadow_roi=(0, 0.5, 1, 1),
+            num_shadows_lower=1,
+            num_shadows_upper=3,
+            p=1.0
+        )
+    ]),
+
+    "Perspective": A.Compose([
+        A.Perspective(scale=(0.03, 0.08), p=1.0)
+    ]),
+
+    "Noise": A.Compose([
+        A.GaussNoise(var_limit=(10, 50), p=1.0)
+    ]),
+
+    "JPEG Compression": A.Compose([
+        A.ImageCompression(quality_lower=30, quality_upper=70, p=1.0)
+    ])
+}
+
+# -------------------------------
+# APPLY + VISUALIZE
+# -------------------------------
+plt.figure(figsize=(16, 12))
+
+for idx, (name, aug) in enumerate(augmentations.items(), 1):
+    augmented = aug(image=image)["image"]
+
+    plt.subplot(4, 3, idx)
+    plt.imshow(augmented)
+    plt.title(name)
+    plt.axis("off")
+
+    if SAVE_OUTPUT:
+        out_path = os.path.join(OUT_DIR, f"{name.replace(' ', '_')}.jpg")
+        cv2.imwrite(out_path, cv2.cvtColor(augmented, cv2.COLOR_RGB2BGR))
+
+plt.tight_layout()
+plt.show()
+
+================================================================================
+FILE: export_codebase.py
+================================================================================
+
+import os
+from pathlib import Path
+from datetime import datetime
+
+
+def export_python_codebase(source_folder, output_file):
+    source_path = Path(source_folder)
+
+    print(f"Scanning folder: {source_path.resolve()}")
+
+    if not source_path.exists() or not source_path.is_dir():
+        print("❌ Invalid source folder.")
+        return
+
+    py_files = sorted(source_path.rglob("*.py"))
+
+    print(f"Found {len(py_files)} Python files.")
+
+    if not py_files:
+        print("❌ No .py files found.")
+        return
+
+    output_path = Path(output_file).resolve()
+
+    with open(output_path, "w", encoding="utf-8") as outfile:
+        outfile.write("=" * 80 + "\n")
+        outfile.write("PYTHON CODEBASE EXPORT\n")
+        outfile.write(f"Source Folder: {source_path.resolve()}\n")
+        outfile.write(f"Exported On : {datetime.now()}\n")
+        outfile.write("=" * 80 + "\n\n")
+
+        for file_path in py_files:
+            relative_path = file_path.relative_to(source_path)
+
+            separator = "=" * 80
+            outfile.write(f"{separator}\n")
+            outfile.write(f"FILE: {relative_path}\n")
+            outfile.write(f"{separator}\n\n")
+
+            try:
+                with open(file_path, "r", encoding="utf-8") as infile:
+                    content = infile.read()
+                    outfile.write(content.strip() + "\n\n")
+            except Exception as e:
+                outfile.write(f"[Error reading file: {e}]\n\n")
+
+    print(f"✅ Export completed successfully!")
+    print(f"📄 File saved at: {output_path}")
+
+
+if __name__ == "__main__":
+    source_folder = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\scripts"
+    output_file = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\codebase_export.txt"
+
+    export_python_codebase(source_folder, output_file)
+
+================================================================================
+FILE: export_tflite.py
+================================================================================
+
+from ultralytics import YOLO
+import os
+
+# 1. Load your trained model
+# Replace with your actual path if different
+model_path = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt"
+model = YOLO(model_path)
+
+# 2. Export specifically to 320x320 TFLite
+# The 'nms=True' argument is optional but helpful if your version supports it. 
+# We stick to standard export to be safe.
+print("⚡ Exporting 320x320 TFLite model...")
+model.export(format="tflite", imgsz=320, half=True)
+
+# 3. Rename and Move instructions
+print("\n✅ EXPORT DONE.")
+print("👉 Go to the weights folder.")
+print("👉 Find 'best_saved_model/best_float16.tflite' (or similar).")
+print("👉 RENAME it to 'yolo320.tflite'.")
+print("👉 COPY 'yolo320.tflite' to your Android 'app/src/main/assets/' folder.")
+
+================================================================================
+FILE: export_torch.py
+================================================================================
+
+from ultralytics import YOLO
+
+# Load your trained model
+model = YOLO(r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt")
+
+# Export to TorchScript (Required for this specific Android tutorial)
+model.export(format="torchscript")
+
+================================================================================
+FILE: export_torch_opt.py
+================================================================================
+
+from ultralytics import YOLO
+import torch
+from torch.utils.mobile_optimizer import optimize_for_mobile
+import os
+
+# Define the path to your weights folder
+weights_path = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights"
+pt_file = os.path.join(weights_path, "best.pt")
+ts_file = os.path.join(weights_path, "best.torchscript")
+
+# 1. Load your model
+print(f"Loading model from: {pt_file}")
+model = YOLO(pt_file)
+
+# 2. Export to TorchScript
+# This creates 'best.torchscript' inside the 'weights' folder defined above
+model.export(format="torchscript", imgsz=320, optimize=True)
+
+# 3. Load the exported script to apply Mobile Optimizations
+# FIX: Use the full path to where the export was actually saved
+print(f"Loading for optimization from: {ts_file}")
+ts_model = torch.jit.load(ts_file)
+
+# 4. Apply Mobile Optimization (Lite Interpreter)
+optimized_model = optimize_for_mobile(ts_model)
+
+# 5. Save the fast version
+# This saves 'best_optimized.torchscript' in your CURRENT folder (where you run the script from)
+output_name = "best_optimized.torchscript"
+optimized_model._save_for_lite_interpreter(output_name)
+
+print(f"✅ Done! Created {output_name}")
+print("Move this file to your Android Studio assets folder.")
+
+================================================================================
+FILE: inspect_classes.py
+================================================================================
+
+import os
+import yaml
+import xml.etree.ElementTree as ET
+
+ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets"
+
+DATASETS = {
+    "roboflow_night": {
+        "labels": os.path.join(ROOT, "NightPotholesDataset", "train", "labels"),
+        "yaml": os.path.join(ROOT, "NightPotholesDataset", "data.yaml"),
+        "type": "yolo"
+    },
+    "mwpd_multiweather": {
+        "labels": os.path.join(ROOT, "MultiweatherPotholeDataset", "train", "labels"),
+        "yaml": os.path.join(ROOT, "MultiweatherPotholeDataset", "data.yaml"),
+        "type": "yolo"
+    },
+    "kaggle_multiview": {
+        "labels": os.path.join(ROOT, "MultiviewPotholeDataset", "annotations"),
+        "type": "voc"
+    }
+}
+
+
+def inspect_yolo_labels(label_dir):
+    ids = set()
+    for file in os.listdir(label_dir):
+        if not file.endswith(".txt"):
+            continue
+        with open(os.path.join(label_dir, file)) as f:
+            for line in f:
+                if line.strip():
+                    ids.add(int(line.split()[0]))
+    return sorted(ids)
+
+
+def load_yaml_names(yaml_path):
+    if not os.path.exists(yaml_path):
+        return None
+
+    with open(yaml_path, "r") as f:
+        data = yaml.safe_load(f)
+
+    names = data.get("names", None)
+
+    if isinstance(names, list):
+        return {i: name for i, name in enumerate(names)}
+    elif isinstance(names, dict):
+        return names
+    else:
+        return None
+
+
+def inspect_voc_labels(xml_dir):
+    classes = set()
+    for file in os.listdir(xml_dir):
+        if not file.endswith(".xml"):
+            continue
+        tree = ET.parse(os.path.join(xml_dir, file))
+        root = tree.getroot()
+        for obj in root.findall("object"):
+            classes.add(obj.find("name").text)
+    return sorted(classes)
+
+
+print("\n========== CLASS INSPECTION REPORT ==========\n")
+
+for name, cfg in DATASETS.items():
+    print(f"📂 Dataset: {name}")
+
+    if cfg["type"] == "yolo":
+        ids = inspect_yolo_labels(cfg["labels"])
+        print(f"  YOLO class IDs found: {ids}")
+
+        names = load_yaml_names(cfg.get("yaml", ""))
+        if names:
+            print("  Class mapping:")
+            for k, v in names.items():
+                print(f"    {k}: {v}")
+        else:
+            print("  ⚠ No data.yaml or names not found")
+
+        if len(ids) > 1:
+            print("  ⚠ WARNING: Multi-class dataset detected")
+
+    elif cfg["type"] == "voc":
+        classes = inspect_voc_labels(cfg["labels"])
+        print(f"  VOC classes found: {classes}")
+
+    print("-" * 50)
+
+================================================================================
+FILE: merge_all_datasets.py
+================================================================================
+
+import os
+import shutil
+import random
+
+random.seed(42)
+
+OUT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified"
+
+# --------- SOURCE DEFINITIONS ---------
+
+SOURCES = [
+    # Roboflow Night (only train)
+    {
+        "name": "rf",
+        "pairs": [
+            (
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\NightPotholesDataset\train\images",
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\NightPotholesDataset\train\labels"
+            )
+        ]
+    },
+
+    # MWPD Multiweather (train / val / test)
+    {
+        "name": "mwpd",
+        "pairs": [
+            (
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\train\images",
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\train\labels"
+            ),
+            (
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\valid\images",
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\valid\labels"
+            ),
+            (
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\test\images",
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\test\labels"
+            )
+        ]
+    },
+
+    # Kaggle Multiview (flat)
+    {
+        "name": "kg",
+        "pairs": [
+            (
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiviewPotholeDataset\images",
+                r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiviewPotholeDataset\labels_yolo"
+            )
+        ]
+    }
+]
+
+# --------- OUTPUT DIRS ---------
+
+for split in ["train", "val", "test"]:
+    os.makedirs(os.path.join(OUT, "images", split), exist_ok=True)
+    os.makedirs(os.path.join(OUT, "labels", split), exist_ok=True)
+
+# --------- COLLECT ALL SAMPLES ---------
+
+all_samples = []
+
+for src in SOURCES:
+    for img_dir, lbl_dir in src["pairs"]:
+        if not os.path.exists(img_dir) or not os.path.exists(lbl_dir):
+            continue
+
+        for img in os.listdir(img_dir):
+            stem, ext = os.path.splitext(img)
+            lbl = stem + ".txt"
+
+            lbl_path = os.path.join(lbl_dir, lbl)
+            img_path = os.path.join(img_dir, img)
+
+            if os.path.exists(lbl_path):
+                all_samples.append({
+                    "src": src["name"],
+                    "img": img_path,
+                    "lbl": lbl_path,
+                    "ext": ext
+                })
+
+print(f"📦 Total samples collected: {len(all_samples)}")
+
+# --------- SHUFFLE & SPLIT ---------
+
+random.shuffle(all_samples)
+n = len(all_samples)
+
+train_end = int(0.7 * n)
+val_end   = int(0.9 * n)
+
+splits = {
+    "train": all_samples[:train_end],
+    "val":   all_samples[train_end:val_end],
+    "test":  all_samples[val_end:]
+}
+
+# --------- COPY WITH SAFE RENAME ---------
+
+global_counter = 0
+
+for split, items in splits.items():
+    for sample in items:
+        new_name = f"{sample['src']}_{global_counter:07d}"
+
+        shutil.copy(
+            sample["img"],
+            os.path.join(OUT, "images", split, new_name + sample["ext"])
+        )
+        shutil.copy(
+            sample["lbl"],
+            os.path.join(OUT, "labels", split, new_name + ".txt")
+        )
+
+        global_counter += 1
+
+print("✅ Unified dataset created successfully")
+print(f"📂 Output path: {OUT}")
+
+================================================================================
+FILE: predict_roadeye.py
+================================================================================
+
+from ultralytics import YOLO
+from multiprocessing import freeze_support
+
+def main():
+    model = YOLO(
+        r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt"
+    )
+
+    model.predict(
+        source=r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\assets\sample_image.png",
+        imgsz=640,
+        conf=0.4,
+        iou=0.5,
+        device=0,
+        save=True,
+        save_txt=False,
+        save_conf=True,
+        show=False
+    )
+
+if __name__ == "__main__":
+    freeze_support()   # REQUIRED on Windows
+    main()
+
+# model.predict(
+#     source=0,   # webcam
+#     imgsz=640,
+#     conf=0.3
+# )
+# model.export(format="onnx", opset=12)
+# model.export(format="tflite", int8=True)
+
+================================================================================
+FILE: predict_roadeye_video.py
+================================================================================
+
+from ultralytics import YOLO
+from multiprocessing import freeze_support
+import os
+
+
+def main():
+    # Path to trained model
+    model_path = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt"
+
+    # Input video  
+    video_path = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\assets\IndianPotholes_Dashcam_2.mp4"
+
+    # Output directory
+    output_dir = r"runs/RoadEye/predict_video"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Load model
+    model = YOLO(model_path)
+
+    # Run inference
+    model.predict(
+        source=video_path,
+        device=0,            # RTX 4070
+        imgsz=640,
+        conf=0.25,            # confidence threshold
+        iou=0.5,
+        stream=False,         # True only if you want generator output
+        save=True,            # saves output video
+        save_txt=False,
+        save_conf=True,
+        project=output_dir,
+        name="roadeye_video_1",
+        exist_ok=True,
+        vid_stride=3          # increase (2–5) for faster inference
+    )
+
+
+if __name__ == "__main__":
+    freeze_support()   # REQUIRED on Windows
+    main()
+
+================================================================================
+FILE: remap_mwpd_labels.py
+================================================================================
+
+import os
+
+LABEL_DIR = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\MultiweatherPotholeDataset\valid\labels"
+
+for file in os.listdir(LABEL_DIR):
+    if not file.endswith(".txt"):
+        continue
+
+    path = os.path.join(LABEL_DIR, file)
+    new_lines = []
+
+    with open(path) as f:
+        for line in f:
+            parts = line.strip().split()
+            if not parts:
+                continue
+
+            # remap class 0 → 1
+            parts[0] = "1"
+            new_lines.append(" ".join(parts))
+
+    with open(path, "w") as f:
+        f.write("\n".join(new_lines))
+
+print("✅ MWPD labels remapped to pothole=1")
+
+================================================================================
+FILE: remap_roboflow_labels.py
+================================================================================
+
+import os
+
+LABEL_DIR = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\NightPotholesDataset\train\labels"
+
+for file in os.listdir(LABEL_DIR):
+    if not file.endswith(".txt"):
+        continue
+
+    path = os.path.join(LABEL_DIR, file)
+    new_lines = []
+
+    with open(path) as f:
+        for line in f:
+            parts = line.strip().split()
+            if not parts:
+                continue
+
+            cls_id = int(parts[0])
+            if cls_id not in (0, 1):
+                continue
+
+            new_lines.append(" ".join(parts))
+
+    with open(path, "w") as f:
+        f.write("\n".join(new_lines))
+
+print("✅ Roboflow labels cleaned (class IDs preserved)")
+
+================================================================================
+FILE: train_rfdetr_roadeye.py
+================================================================================
+
+import torch
+from rfdetr import RFDETRMedium
+
+# --------------------------------------------------
+# CONFIG
+# --------------------------------------------------
+DATASET_DIR = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_RFDETR"
+
+NUM_CLASSES = 2
+
+# --------------------------------------------------
+# MAIN
+# --------------------------------------------------
+def main():
+
+    print("CUDA Available:", torch.cuda.is_available())
+
+    model = RFDETRMedium(
+        num_classes=NUM_CLASSES,
+        pretrained=True
+    )
+
+    model.train(
+        dataset_dir=DATASET_DIR,   # <-- THIS IS REQUIRED
+
+        epochs=120,
+        batch_size=6,
+        lr=1e-4,
+        weight_decay=1e-4,
+        warmup_epochs=5,
+        image_size=576,
+        num_workers=8,
+        device="cuda",
+        amp=True
+    )
+
+    model.save("rfdetr_roadeye_medium.pth")
+    print("Training complete.")
+
+
+if __name__ == "__main__":
+    main()
+
+================================================================================
+FILE: train_roadeye.py
+================================================================================
+
+from ultralytics import YOLO
+from multiprocessing import freeze_support
+
+def main():
+    model = YOLO("yolo11s.pt")
+
+    model.train(
+        data=r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified\roadeye.yaml",
+        epochs=100,
+        imgsz=640,
+        
+        batch=16,          # RTX 4070 sweet spot
+        device=0,
+        workers=8,         # multiprocessing workers
+        cache=False,       # RAM warning earlier, keep False
+
+        optimizer="AdamW",
+        lr0=0.002,
+        cos_lr=True,
+        weight_decay=0.0005,
+
+        # -------- VALID AUGMENTATIONS --------
+        hsv_h=0.015,
+        hsv_s=0.7,
+        hsv_v=0.4,
+        degrees=2.0,
+        translate=0.1,
+        scale=0.5,
+        shear=2.0,
+        mosaic=0.5,
+        mixup=0,
+
+        project="runs/RoadEye",
+        name="yolo11_multiclass_rtx4070",
+        exist_ok=True,
+
+        patience=20,
+        amp=False
+    )
+
+if __name__ == "__main__":
+    freeze_support()   # required on Windows
+    main()
+
+================================================================================
+FILE: ulhub_login.py
+================================================================================
+
+from ultralytics import YOLO, checks, hub
+checks()
+
+hub.login('your_ultralytics_hub_token_here')
+
+================================================================================
+FILE: val_roadeye.py
+================================================================================
+
+from ultralytics import YOLO
+from multiprocessing import freeze_support
+
+def main():
+    model = YOLO(
+        r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\runs\detect\runs\RoadEye\yolo11_multiclass_rtx4070\weights\best.pt"
+    )
+
+    model.val(
+        data=r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified\roadeye.yaml",
+        imgsz=640,
+        batch=16,
+        device=0,
+        workers=8,
+        plots=True
+    )
+
+if __name__ == "__main__":
+    freeze_support()   # REQUIRED on Windows
+    main()
+
+================================================================================
+FILE: validate_unified_dataset.py
+================================================================================
+
+import os
+from collections import Counter
+
+# --------- UPDATE THIS TO YOUR UNIFIED DATASET PATH ---------
+ROOT = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified"
+
+image_splits = {
+    "train": os.path.join(ROOT, "images", "train"),
+    "val":   os.path.join(ROOT, "images", "val"),
+    "test":  os.path.join(ROOT, "images", "test")
+}
+
+label_splits = {
+    "train": os.path.join(ROOT, "labels", "train"),
+    "val":   os.path.join(ROOT, "labels", "val"),
+    "test":  os.path.join(ROOT, "labels", "test")
+}
+
+print("\n========== Unified Dataset Validator ==========\n")
+
+total_img = 0
+total_lbl = 0
+
+class_counter = Counter()
+empty_label_files = []
+
+for split in image_splits:
+    img_dir = image_splits[split]
+    lbl_dir = label_splits[split]
+
+    print(f"→ Checking split: {split}")
+
+    imgs = os.listdir(img_dir)
+    for im in imgs:
+        stem = os.path.splitext(im)[0]
+        lbl_file = stem + ".txt"
+
+        total_img += 1
+
+        img_path = os.path.join(img_dir, im)
+        lbl_path = os.path.join(lbl_dir, lbl_file)
+
+        if not os.path.exists(lbl_path):
+            print(f"❌ Missing label for {img_path}")
+            continue
+
+        total_lbl += 1
+
+        with open(lbl_path) as f:
+            lines = [l.strip() for l in f if l.strip()]
+
+        if not lines:
+            empty_label_files.append(lbl_path)
+            continue
+
+        for ln in lines:
+            parts = ln.split()
+            cls = int(parts[0])
+            class_counter[cls] += 1
+
+    print(f"✔ {len(imgs)} images checked in {split}\n")
+
+print("=========== Validation Summary ===========\n")
+print(f"Total images seen : {total_img}")
+print(f"Total labels seen : {total_lbl}")
+print(f"Empty label files : {len(empty_label_files)}")
+
+if empty_label_files:
+    print("\nList of empty label files:")
+    for p in empty_label_files[:10]:
+        print("  ", p)
+print("\nClass distribution:")
+print("Class : 0 -> Night Time potholes, 1 -> Potholes")
+for cls, cnt in class_counter.items():
+    print(f"  class {cls} : {cnt} boxes")
+
+print("\nValidation completed!\n")
+
+================================================================================
+FILE: visualize_augmented_samples.py
+================================================================================
+
+import os
+import cv2
+import random
+import matplotlib.pyplot as plt
+
+DATASET = r"D:\Study Material\Sem VI\Projects\PBL2\RoadEye\Datasets\RoadEyeUnified_SingleClass_Aug"
+SPLIT = "train"
+NUM_SAMPLES = 20
+
+img_dir = os.path.join(DATASET, "images", SPLIT)
+lbl_dir = os.path.join(DATASET, "labels", SPLIT)
+
+def draw_boxes(img, boxes):
+    h, w, _ = img.shape
+    for box in boxes:
+        x, y, bw, bh = map(float, box)
+        x1 = int((x - bw/2) * w)
+        y1 = int((y - bh/2) * h)
+        x2 = int((x + bw/2) * w)
+        y2 = int((y + bh/2) * h)
+
+        cv2.rectangle(img, (x1,y1), (x2,y2), (0,255,0), 2)
+    return img
+
+images = [f for f in os.listdir(img_dir) if f.endswith(".jpg")]
+
+sample_imgs = random.sample(images, NUM_SAMPLES)
+
+for img_name in sample_imgs:
+
+    base = os.path.splitext(img_name)[0]
+    lbl_path = os.path.join(lbl_dir, base + ".txt")
+
+    if not os.path.exists(lbl_path):
+        continue
+
+    img = cv2.imread(os.path.join(img_dir, img_name))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    boxes = []
+    with open(lbl_path) as f:
+        for line in f:
+            parts = line.strip().split()
+            boxes.append(parts[1:])
+
+    img = draw_boxes(img, boxes)
+
+    plt.figure(figsize=(6,6))
+    plt.imshow(img)
+    plt.title(img_name)
+    plt.axis("off")
+    plt.show()
+

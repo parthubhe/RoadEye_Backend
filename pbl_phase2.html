@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RoadEye AI – End-to-End Workflow</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: #ffffff;
+    }
+
+    h1 {
+        text-align: center;
+        margin: 30px 0 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    h2 {
+        text-align: center;
+        font-weight: 400;
+        color: #cfd9df;
+        margin-bottom: 40px;
+    }
+
+    .workflow {
+        max-width: 1200px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 40px;
+    }
+
+    .step {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .step:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+    }
+
+    .step::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 5px;
+        width: 100%;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+    }
+
+    .step-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #ffffff;
+    }
+
+    .step-desc {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #e0eafc;
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 13px;
+        color: #b0bec5;
+    }
+
+    .tag {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 4px 10px;
+        font-size: 11px;
+        border-radius: 20px;
+        background: rgba(0,198,255,0.2);
+        color: #9fe7ff;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>RoadEye AI – End-to-End System Workflow</h1>
+<h2>Real-Time Road Damage Detection, Geo-Mapping & Civic Automation</h2>
+
+<div class="workflow">
+
+    <div class="step">
+        <div class="step-title">1. Dataset Collection</div>
+        <div class="step-desc">
+            Gather pothole, crack, manhole datasets from multiple sources covering
+            day/night, multi-weather, multi-view and motion scenarios.
+        </div>
+        <span class="tag">Data Acquisition</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">2. Dataset Inspection & Format Analysis</div>
+        <div class="step-desc">
+            Inspect image formats (JPEG, PNG) and annotation formats
+            (JSON, XML, TXT). Identify class labels and inconsistencies.
+        </div>
+        <span class="tag">Data Understanding</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">3. Dataset Pre-processing</div>
+        <div class="step-desc">
+            Homogenize datasets into YOLO format. Perform resizing, normalization,
+            class remapping and annotation cleanup.
+        </div>
+        <span class="tag">Preprocessing</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">4. Data Augmentation</div>
+        <div class="step-desc">
+            Apply motion blur (Gaussian), low-light simulation, noise, weather effects
+            and perspective changes to improve real-world robustness.
+        </div>
+        <span class="tag">Robust Training</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">5. Dataset Fusion</div>
+        <div class="step-desc">
+            Combine regular, night-time, multi-weather and multi-angle datasets
+            into a unified training set with balanced classes.
+        </div>
+        <span class="tag">Data Engineering</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">6. Model Selection</div>
+        <div class="step-desc">
+            Choose suitable YOLO version (YOLOv8/YOLOv9/YOLOv10) based on
+            accuracy, latency and mobile deployability.
+        </div>
+        <span class="tag">Model Design</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">7. Model Training (PC)</div>
+        <div class="step-desc">
+            Train and fine-tune the YOLO model on a PC/GPU. Optimize hyperparameters
+            for precision, recall and inference speed.
+        </div>
+        <span class="tag">Training</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">8. Evaluation & Validation</div>
+        <div class="step-desc">
+            Validate model using test images/videos. Measure precision, recall,
+            mAP, FPS and failure cases.
+        </div>
+        <span class="tag">Validation</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">9. Model Conversion</div>
+        <div class="step-desc">
+            Convert trained model to ONNX / TensorFlow Lite for mobile deployment.
+            Apply quantization and pruning if required.
+        </div>
+        <span class="tag">Optimization</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">10. Deployment Strategy</div>
+        <div class="step-desc">
+            Choose between web-based inference (server-side) or native Android
+            app (Kotlin) with on-device GPU/NNAPI acceleration.
+        </div>
+        <span class="tag">Deployment</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">11. Camera & Mounting Setup</div>
+        <div class="step-desc">
+            Select stable phone mount and camera angle. Optimize shutter speed,
+            frame skipping and vibration handling for bike-mounted usage.
+        </div>
+        <span class="tag">Hardware Integration</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">12. Real-Time Inference Pipeline</div>
+        <div class="step-desc">
+            Capture live camera feed, perform inference, smooth detections,
+            filter noise and log damage events in real time.
+        </div>
+        <span class="tag">Edge AI</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">13. GIS Integration</div>
+        <div class="step-desc">
+            Attach GPS coordinates using Android Location Services. Assign label IDs,
+            store in database and process spatial data using GeoPandas.
+        </div>
+        <span class="tag">Geo-Mapping</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">14. Visualization & Analytics</div>
+        <div class="step-desc">
+            Display detections using Folium maps with markers, heatmaps,
+            severity coloring and route-wise damage tracking.
+        </div>
+        <span class="tag">Visualization</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">15. Deduplication & Quality Control</div>
+        <div class="step-desc">
+            Cluster detections spatially and temporally to avoid duplicate reports.
+            Filter false positives and low-confidence detections.
+        </div>
+        <span class="tag">Reliability</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">16. Autonomous Complaint Agent</div>
+        <div class="step-desc">
+            Use GenAI & Agentic AI to draft complaints using annotated snapshots,
+            GPS data and severity. Provide UI to send via email, social media or portals.
+        </div>
+        <span class="tag">Automation</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">17. User Dashboard</div>
+        <div class="step-desc">
+            Maintain drive history, detections, maps and complaint logs.
+            Enable review, export and audit of collected data.
+        </div>
+        <span class="tag">Application Layer</span>
+    </div>
+
+    <div class="step">
+        <div class="step-title">18. Monitoring & Future Scaling</div>
+        <div class="step-desc">
+            Monitor performance, retrain with new data, scale to multiple riders,
+            cities and smart-infrastructure platforms.
+        </div>
+        <span class="tag">Scalability</span>
+    </div>
+
+</div>
+
+<footer>
+    © RoadEye AI | PBL-2 | B.Tech AIML | End-to-End Workflow Diagram
+</footer>
+
+</body>
+</html>

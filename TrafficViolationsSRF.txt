@@ -1,0 +1,148 @@
+Local:
+Dashcam / Phone Camera
+        ↓
+Video Stream (RTSP / WebRTC / HTTP chunks)
+        ↓
+GPU Server (YOLO + Tracking + Rules Engine)
+        ↓
+Violation Events (JSON + annotated frames)
+
+
+Cloud:
+Edge (phone/car) → Stream Gateway → GPU inference pool
+                                  → Event DB + Evidence Store
+                                  → Dashboard / API
+
+
+Phase 1: Basic Violations:
+Red-light running
+Lane violations (solid line, bus lane – static lanes)
+No helmet / seatbelt
+Phone usage while driving
+
+
+Phase 2: Advanced Violations:
+Speeding (needs calibration / GPS)
+Illegal parking (temporal logic)
+Wrong direction (map + heading)
+Illegal turns/U-turns (map-aware logic)
+
+
+Phase 1:
+A] Red light:
+Traffic light detection
+Vehicle detection + tracking
+Stop-line detection (static ROI)
+
+Approach:
+To Do:
+Traffic light detection,
+Vehicle detection + tracking,
+Stop-line detection (static ROI)
+
+
+YOLO model
+Classes: car, bike, truck, bus, traffic_light_red, traffic_light_green
+Define Stop Line ROI
+Hardcoded polygon per junction (MVP)
+Logic:
+IF traffic_light == RED
+AND vehicle crosses stop_line
+→ violation
+
+Data
+
+Images/videos of intersections
+Annotated traffic lights + vehicles
+Open datasets
+Roboflow: Traffic Light Detection
+BDD100K (excellent for this)
+AI City Challenge datasets
+
+
+B] Speeding:
+Dashcam GPS speed (mobile phone sensors)/Accelerometer
+Pixel → meter calibration:speed = distance_pixels × scale / time
+Known lane width / road markers
+Track object displacement over time
+
+C] Lane Violations:
+Lane detection (segmentation)
+Vehicle tracking
+Approach:
+Lane segmentation model
+YOLOv8-seg
+Classify lane types:
+Solid line
+Bus-only lane
+Check intersection
+Data:
+Lane annotated images (segmentation masks)
+Open datasets:
+TuSimple Lane Dataset
+CULane
+Roboflow lane datasets
+
+
+D] Illega; Turns/Uturns:
+What you need:
+Vehicle trajectory
+Allowed direction per lane (map / config)
+Approach:
+Track vehicle path using DeepSORT / ByteTrack
+Compute angle change
+Compare with allowed turn
+IF turn_angle ∈ forbidden_range
+→ violation
+
+E]Illegal parking
+What you need
+Vehicle detection
+Time-based logic
+Approach
+Define No-parking zones
+Track stationary vehicle
+Timer-based rule
+IF speed ≈ 0 for > X seconds
+AND location ∈ no-parking zone
+→ violation
+
+
+F] Wrong side driving:
+Approach
+Lane direction map (static)
+Track vehicle motion vector
+Compare with lane direction
+IF dot(direction_vehicle, direction_lane) < 0
+→ violation
+
+G]Helmet/seatbelt:
+No helmet / seatbelt
+Approach
+Object detection / pose-based
+Detect:
+person
+helmet
+seatbelt
+Check spatial relationship
+IF rider_detected AND helmet NOT detected
+→ violation
+Data:
+Helmet detection datasets
+Roboflow has good ones
+
+
+Datasets(video,images):
+| Dataset           | What it gives           |
+| ----------------- | ----------------------- |
+| BDD100K           | Lanes, lights, vehicles |
+| AI City Challenge | Traffic violations      |
+| UA-DETRAC         | Vehicle tracking        |
+| Roboflow Universe | Helmets, phones, lanes  |
+| MOT17 / MOT20     | Tracking (generic)      |
+
+
+Object Tracking Algorithms(2025):
+ByteTrack, SAMBA-MOTR, CAMELTrack, Cutie, and DAM4SAM,Deepsort(old)
+
+SAM3 VIDEO segmentaion + Object tracking ~= ByteTrack   
