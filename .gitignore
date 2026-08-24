@@ -32,6 +32,20 @@ assets/
 *.npy
 *.npz
 
+# Dataset media and archives
+# =========================
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.bmp
+*.gif
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.txt
 # =========================
 # Environment variables
 # =========================
