@@ -1,11 +1,11 @@
 import ultralytics.nn.tasks as tasks
-from ultralytics.nn.modules import CBAM
-tasks.CBAM = CBAM
+from simam import SimAM
+tasks.SimAM = SimAM
 
 from ultralytics import YOLO
 
 def main():
-    model = YOLO("yolo26n-cbam.yaml").load("yolo26n.pt")
+    model = YOLO("yolo26n-simam.yaml").load("yolo26n.pt")
 
     print(type(model.model.model[17]).__name__)
     print(sum(p.numel() for p in model.model.parameters()))
@@ -19,9 +19,9 @@ def main():
         lr0=0.002,
         cos_lr=True,
         device=0,
-        project="runs/pipe_proto",
-        name="yolo26n_cbam_v1_140ep",
         workers=2,
+        project="runs/pipe_proto",
+        name="yolo26n_simam_v1",
     )
 
 if __name__ == "__main__":
