@@ -8,7 +8,6 @@ on:
 
 jobs:
   ai_review:
-    # Ignore comments created by bots to prevent loops
     if: ${{ github.event.sender.type != 'Bot' }}
     runs-on: ubuntu-latest
     permissions:
@@ -18,7 +17,7 @@ jobs:
       checks: write
 
     steps:
-      - name: Trigger PR Review on Local DeepAgent Server
+      - name: Trigger PR Review or Command on Local DeepAgent Server
         run: |
           curl -s -X POST "${{ secrets.PR_AGENT_SERVER_URL }}/api/v1/review" \
             -H "Content-Type: application/json" \
@@ -26,5 +25,6 @@ jobs:
               "pr_url": "${{ github.event.pull_request.html_url || github.event.issue.pull_request.html_url }}",
               "token": "${{ secrets.GITHUB_TOKEN }}",
               "post_review": true,
-              "post_check": true
+              "post_check": true,
+              "comment_body": "${{ github.event.comment.body }}"
             }'
