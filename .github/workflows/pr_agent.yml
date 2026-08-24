@@ -8,6 +8,7 @@ on:
 
 jobs:
   ai_review:
+    # Ignore comments created by bots to prevent infinite feedback loops
     if: ${{ github.event.sender.type != 'Bot' }}
     runs-on: ubuntu-latest
     permissions:
@@ -18,13 +19,27 @@ jobs:
 
     steps:
       - name: Trigger PR Review or Command on Local DeepAgent Server
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url || github.event.issue.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMENT_BODY: ${{ github.event.comment.body || '' }}
+          SERVER_URL: ${{ secrets.PR_AGENT_SERVER_URL }}
         run: |
-          curl -s -X POST "${{ secrets.PR_AGENT_SERVER_URL }}/api/v1/review" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "pr_url": "${{ github.event.pull_request.html_url || github.event.issue.pull_request.html_url }}",
-              "token": "${{ secrets.GITHUB_TOKEN }}",
-              "post_review": true,
-              "post_check": true,
-              "comment_body": "${{ github.event.comment.body }}"
-            }'
+          python3 -c "
+          import json, os, urllib.request
+
+          payload = {
+              'pr_url': os.environ.get('PR_URL', ''),
+              'token': os.environ.get('GITHUB_TOKEN', ''),
+              'post_review': True,
+              'post_check': True,
+              'comment_body': os.environ.get('COMMENT_BODY', '')
+          }
+          req = urllib.request.Request(
+              f\"{os.environ['SERVER_URL']}/api/v1/review\",
+              data=json.dumps(payload).encode('utf-8'),
+              headers={'Content-Type': 'application/json'}
+          )
+          with urllib.request.urlopen(req) as response:
+              print(response.read().decode('utf-8'))
+          "
