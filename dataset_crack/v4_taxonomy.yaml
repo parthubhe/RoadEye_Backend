@@ -1,0 +1,107 @@
+# Version 4 keeps the two visual domains separate and records every class
+# decision in one place.  Paths are relative to this file.
+#
+# `pipe_cctv` is the research/deployment dataset for an in-pipe CCTV model.
+# `closeup_crack` is a separate surface/close-up dataset; do not mix its
+# metrics with pipe_cctv metrics.
+version: 4
+
+split:
+  train: 0.70
+  valid: 0.15
+  test: 0.15
+
+datasets:
+  pipe_cctv:
+    output_dir: final_dataset_v4
+    description: >-
+      Pipe-CCTV only.  It retains named defect classes instead of merging
+      visually different defects into crack, sediment, root, or joint.
+    class_names:
+      - crack
+      - corrosion_rust
+      - sediment_deposit
+      - root_intrusion
+      - joint_defect
+      - buckling
+      - debris
+      - hole
+      - joint_offset
+      - obstacle
+      - utility_intrusion
+    sources:
+      # Existing remapped labels have five traceable classes.  Empty labels
+      # are excluded because they can be frames whose original, unmodelled
+      # defect was dropped during the earlier 50-class -> 5-class remap.
+      - id: sewer_o8use
+        path: sewer_remapped
+        include_empty_labels: false
+        on_unmapped: error
+        class_map:
+          0: crack
+          1: corrosion_rust
+          2: sediment_deposit
+          3: root_intrusion
+          4: joint_defect
+
+      # This is the named, non-duplicated export.  Its labels are explicit
+      # and therefore remain separate in v4.
+      - id: sewage_defect_detection
+        path: merge_staging/sewage_defect_detection
+        include_empty_labels: true
+        on_unmapped: error
+        class_map:
+          0: buckling
+          1: crack
+          2: debris
+          3: hole
+          4: joint_offset
+          5: obstacle
+          6: utility_intrusion
+
+  closeup_crack:
+    output_dir: closeup_crack_v4
+    description: >-
+      Surface/close-up images only.  This is intentionally independent from
+      pipe_cctv because its appearance, scale, and viewpoint are different.
+    class_names:
+      - crack
+      - corrosion_rust
+      - void
+    sources:
+      # The export calls its two raw IDs "0" and "object", but representative
+      # examples from both IDs visibly contain surface cracks.  They remain
+      # one crack class; do not infer an extra defect type from those names.
+      - id: pipeline_crack_detection
+        path: merge_staging/pipeline_crack_detection
+        include_empty_labels: true
+        on_unmapped: error
+        class_map:
+          0: crack
+          1: crack
+
+      - id: pipe_inspection
+        path: merge_staging/pipe_inspection
+        include_empty_labels: true
+        on_unmapped: error
+        class_map:
+          0: crack
+          1: corrosion_rust
+          2: void
+
+# Intentionally excluded from v4.  These decisions are written here so they
+# are visible in the dataset provenance report created by build_v4_datasets.py.
+excluded_sources:
+  - id: sewage
+    path: merge_staging/sewage
+    reason: >-
+      Its classes are anonymous numeric IDs and it shares 801 original frame
+      stems with the named sewage_defect_detection export.  Do not infer its
+      class mapping from filenames or merge it until the original annotation
+      ontology is recovered and audited.
+  - id: sewer_defects
+    path: merge_staging/sewer_defects
+    reason: >-
+      It shares 978 original frame stems with sewage_defect_detection, so
+      including both would duplicate video frames and can leak them across
+      train, validation, and test splits.

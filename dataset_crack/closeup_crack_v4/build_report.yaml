@@ -1,0 +1,77 @@
+version: 4
+dataset: closeup_crack
+description: Surface/close-up images only.  This is intentionally independent from
+  pipe_cctv because its appearance, scale, and viewpoint are different.
+output_dir: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\closeup_crack_v4
+seed: 42
+image_mode_requested: hardlink
+classes:
+- crack
+- corrosion_rust
+- void
+input_images_kept: 4919
+groups: 2587
+group_split_counts:
+  train: 1852
+  valid: 367
+  test: 368
+image_split_counts:
+  train: 3447
+  valid: 735
+  test: 737
+class_split_counts:
+  train:
+    crack: 3283
+    corrosion_rust: 65
+    void: 79
+  valid:
+    crack: 946
+    corrosion_rust: 24
+    void: 18
+  test:
+    crack: 945
+    corrosion_rust: 26
+    void: 18
+source_images_by_split:
+  train:
+    pipe_inspection: 248
+    pipeline_crack_detection: 3199
+  valid:
+    pipe_inspection: 49
+    pipeline_crack_detection: 686
+  test:
+    pipe_inspection: 51
+    pipeline_crack_detection: 686
+source_audit:
+  pipeline_crack_detection:
+    source_path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\merge_staging\pipeline_crack_detection
+    images_seen: 4571
+    images_kept: 4571
+    images_skipped_empty_after_mapping: 0
+    missing_labels: 0
+    raw_boxes: 4999
+    mapped_boxes: 4999
+    unmapped_boxes: {}
+  pipe_inspection:
+    source_path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\merge_staging\pipe_inspection
+    images_seen: 348
+    images_kept: 348
+    images_skipped_empty_after_mapping: 0
+    missing_labels: 0
+    raw_boxes: 405
+    mapped_boxes: 405
+    unmapped_boxes: {}
+excluded_sources:
+- id: sewage
+  path: merge_staging/sewage
+  reason: Its classes are anonymous numeric IDs and it shares 801 original frame stems
+    with the named sewage_defect_detection export.  Do not infer its class mapping
+    from filenames or merge it until the original annotation ontology is recovered
+    and audited.
+- id: sewer_defects
+  path: merge_staging/sewer_defects
+  reason: It shares 978 original frame stems with sewage_defect_detection, so including
+    both would duplicate video frames and can leak them across train, validation,
+    and test splits.
+image_materialization:
+  hardlink: 4919

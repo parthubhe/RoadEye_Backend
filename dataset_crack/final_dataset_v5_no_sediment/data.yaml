@@ -1,0 +1,10 @@
+path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v5_no_sediment
+train: train/images
+val: valid/images
+test: test/images
+nc: 4
+names:
+  0: crack
+  1: corrosion_rust
+  2: root_intrusion
+  3: joint_defect

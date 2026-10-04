@@ -1,0 +1,17 @@
+path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v4
+train: train/images
+val: valid/images
+test: test/images
+nc: 11
+names:
+  0: crack
+  1: corrosion_rust
+  2: sediment_deposit
+  3: root_intrusion
+  4: joint_defect
+  5: buckling
+  6: debris
+  7: hole
+  8: joint_offset
+  9: obstacle
+  10: utility_intrusion

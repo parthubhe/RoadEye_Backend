@@ -1,0 +1,110 @@
+{
+  "purpose": "Model-selected diagnostic subset; biased evaluation, not an independent benchmark",
+  "source": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5",
+  "csv_inputs": {
+    "FP": {
+      "path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v5_parallel_simam_cbam_se_error_analysis\\false_positives.csv",
+      "rows": 795,
+      "sha256": "b08c80e0991397c6f55c771e78f978c7117da5e14bf85c31372d673d938967bf"
+    },
+    "FN": {
+      "path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v5_parallel_simam_cbam_se_error_analysis\\false_negatives.csv",
+      "rows": 674,
+      "sha256": "f69a33b302a53ae63bbf7afeb93981b168d8ef149db60723ecd5502037a76ecb"
+    }
+  },
+  "excluded_unique_images": 3200,
+  "split_counts": {
+    "train": {
+      "before": 9486,
+      "excluded": 2501,
+      "retained": 6985,
+      "instances_before": {
+        "crack": 6358,
+        "corrosion_rust": 1821,
+        "sediment_deposit": 631,
+        "root_intrusion": 413,
+        "joint_defect": 1693
+      },
+      "instances_retained": {
+        "crack": 2766,
+        "corrosion_rust": 1502,
+        "sediment_deposit": 410,
+        "root_intrusion": 353,
+        "joint_defect": 1100
+      }
+    },
+    "val": {
+      "before": 2014,
+      "excluded": 0,
+      "retained": 2014,
+      "instances_before": {
+        "crack": 1208,
+        "corrosion_rust": 397,
+        "sediment_deposit": 139,
+        "root_intrusion": 93,
+        "joint_defect": 348
+      },
+      "instances_retained": {
+        "crack": 1208,
+        "corrosion_rust": 397,
+        "sediment_deposit": 139,
+        "root_intrusion": 93,
+        "joint_defect": 348
+      }
+    },
+    "test": {
+      "before": 1986,
+      "excluded": 699,
+      "retained": 1287,
+      "instances_before": {
+        "crack": 1396,
+        "corrosion_rust": 394,
+        "sediment_deposit": 152,
+        "root_intrusion": 70,
+        "joint_defect": 363
+      },
+      "instances_retained": {
+        "crack": 396,
+        "corrosion_rust": 281,
+        "sediment_deposit": 77,
+        "root_intrusion": 50,
+        "joint_defect": 223
+      }
+    }
+  },
+  "original_files_deleted": 0,
+  "training_filter": {
+    "policy": "Remove all unique FP images, plus a seeded sample of ceil(80% of all unique FN images); take union.",
+    "seed": 42,
+    "requested_fn_fraction": 0.8,
+    "before": 9486,
+    "retained": 6985,
+    "removed_unique_images": 2501,
+    "fp_images_removed": 2153,
+    "fn_images_total": 1094,
+    "fn_images_sampled": 876,
+    "sampled_fn_already_fp": 528,
+    "additional_fn_only_images_removed": 348,
+    "effective_fn_images_removed": 994,
+    "effective_fn_images_retained": 100,
+    "analysis_checkpoint": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v6_normal_error_filtered_diagnostic_seed0_20260929_184244_3e235d15\\weights\\best.pt",
+    "analysis_checkpoint_sha256": "b1b0c2d31eaf3aea64013ab1ec0637a05619dd1adbff620e2cb3f944b208c239",
+    "analysis_confidence": 0.25,
+    "analysis_matching_iou": 0.5,
+    "csv_inputs": {
+      "FP": {
+        "path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v6_train_error_analysis\\false_positives.csv",
+        "sha256": "853d06b9fb7b582381a16de5ff78ad27516c0ebf5b61a81b1f7e3deff902f949"
+      },
+      "FN": {
+        "path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v6_train_error_analysis\\false_negatives.csv",
+        "sha256": "9cd4b155eccda66f119b10f2d358d190bfb01526fc58d18223d00ffd2b94fa29"
+      }
+    },
+    "original_files_deleted": 0,
+    "note": "FP/FN overlap can make effective FN removal exceed 80%. Selection is model-based, not verified data cleansing.",
+    "backup": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v6\\backups\\before_training_filter_20260930_054747_641587",
+    "applied_utc": "2026-09-30T05:47:47.666616+00:00"
+  }
+}

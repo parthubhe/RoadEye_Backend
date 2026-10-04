@@ -1,0 +1,50 @@
+datasets:
+  pipe_inspection:
+    map:
+      crack: crack
+      rust: corrosion_rust
+      void: null
+
+  pipeline_crack_detection:
+    map:
+      "0": crack
+      object: crack
+
+  sewage:
+    map:
+      "0": crack
+      "1": crack
+      "2": crack
+      "3": crack
+      "4": crack
+      "5": crack
+      "6": crack
+
+  sewage_defect_detection:
+    map:
+      Buckling: null
+      Crack: crack
+      Debris: sediment_deposit
+      Hole: null
+      "Joint offset": joint_defect
+      Obstacle: null
+      "Utility intrusion": null
+
+  sewer_defects:
+    map:
+      Buckling: null
+      Crack: crack
+      Debris: sediment_deposit
+      Hole: null
+      "Joint offset": joint_defect
+      Obstacle: null
+      "Utility intrusion": null
+
+  # sewer_o8use_2.2k already fully remapped -- lives in sewer_remapped/,
+  # merge it in directly at the final-pool step, no need to reprocess here.
+  # Same base-code mapping it used, kept here for reference:
+  #   PL: crack, FS: corrosion_rust, CJ: sediment_deposit, JG: sediment_deposit,
+  #   SG: root_intrusion, TJ: joint_defect, CK: joint_defect, rest: drop
+
+  # pwdid_picture excluded -- format (.txt + .xlsx, no data.yaml) never confirmed.
+  # Add back once resolved.

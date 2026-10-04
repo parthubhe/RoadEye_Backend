@@ -1,0 +1,10 @@
+names:
+- crack
+- corrosion_rust
+- sediment_deposit
+- root_intrusion
+- joint_defect
+nc: 5
+test: test/images
+train: train/images
+val: valid/images
