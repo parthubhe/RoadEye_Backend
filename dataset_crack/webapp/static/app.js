@@ -100,6 +100,13 @@ function renderModels() {
     tbody.appendChild(row);
   }
   $("tableModelCount").textContent = `${state.models.length} recorded runs`;
+  const rfRuns = state.models.filter(m => m.family === "RF-DETR Nano" && m.status === "complete" && m.test_metrics.map50 != null);
+  const rf40 = rfRuns.find(m => m.label.includes("40 epochs"));
+  const rf50 = rfRuns.find(m => m.label.includes("50 epochs"));
+  const rfPartial = state.models.find(m => m.family === "RF-DETR Nano" && m.status !== "complete" && m.test_metrics.map50 != null);
+  $("rfdetrTestNote").textContent = rf40 && rf50
+    ? `Held-out v5 test (1,986 images): RF-DETR Nano 40 epochs ${pct(rf40.test_metrics.map50)} mAP50 / ${pct(rf40.test_metrics.map5095)} mAP50-95; 50 epochs ${pct(rf50.test_metrics.map50)} mAP50 / ${pct(rf50.test_metrics.map5095)} mAP50-95.${rfPartial ? ` Earlier interrupted checkpoint ${pct(rfPartial.test_metrics.map50)} mAP50 / ${pct(rfPartial.test_metrics.map5095)} mAP50-95.` : ""} These are test results, separate from validation scores.`
+    : "RF-DETR held-out test results are not available for both completed checkpoints yet; blank table cells mean no verified test artifact.";
   $("modelCount").textContent = `${state.models.filter(m => m.available).length} local checkpoints`;
   const select = $("modelSelect");
   select.replaceChildren();

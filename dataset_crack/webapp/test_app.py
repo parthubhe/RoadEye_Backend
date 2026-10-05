@@ -5,6 +5,7 @@ from __future__ import annotations
 import tempfile
 import time
 import unittest
+import json
 from pathlib import Path
 from unittest import mock
 
@@ -14,6 +15,7 @@ from fastapi.testclient import TestClient
 
 from . import app as server
 from .engine import InferenceResult, encode_jpeg
+from .registry import _rf_test_metrics
 
 
 def fake_inference(frame, model_id, confidence):
@@ -38,6 +40,18 @@ class WebAppTests(unittest.TestCase):
         self.assertTrue(any(model["id"] == "cloud__e3" and not model["available"] for model in models))
         self.assertEqual(self.client.get("/").status_code, 200)
         self.assertEqual(self.client.get("/api/health").status_code, 200)
+
+    def test_rf_detr_test_metrics_require_provenance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            metrics = {"test/mAP_50": .91, "test/mAP_50_95": .76,
+                       "test/precision": .88, "test/recall": .84}
+            (run / "full_v5_test_metrics.json").write_text(json.dumps(metrics), encoding="utf-8")
+            self.assertEqual(_rf_test_metrics(run), {})
+            evidence = {"split": "test", "test_images": 1986, "metrics": metrics}
+            (run / "full_v5_test_evaluation.json").write_text(json.dumps(evidence), encoding="utf-8")
+            self.assertEqual(_rf_test_metrics(run), {"map50": .91, "map5095": .76,
+                                                      "precision": .88, "recall": .84})
 
     def test_image_upload_and_output(self):
         frame = np.zeros((32, 48, 3), dtype=np.uint8)

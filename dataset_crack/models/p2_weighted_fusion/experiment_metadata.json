@@ -1,0 +1,76 @@
+{
+  "experiment": "E3",
+  "simam_base": null,
+  "dataset": {
+    "repo_id": "AkumaDachi/roadeeye-sewer-defects-v5",
+    "requested_revision": "d88c0ed4f0fd39253eb3866bf2feb9dcf808bae5",
+    "resolved_commit": "d88c0ed4f0fd39253eb3866bf2feb9dcf808bae5",
+    "local_root": "/kaggle/working/roadeeye_workspace/dataset/hf_cache/datasets--AkumaDachi--roadeeye-sewer-defects-v5/snapshots/d88c0ed4f0fd39253eb3866bf2feb9dcf808bae5",
+    "counts": {
+      "train": 9486,
+      "val": 2014,
+      "test": 1986
+    },
+    "filename_label_sha256": {
+      "train": "7aa8637ac0341ffe1f32c6763f7ded65a899e73ddfefe1bfc8016248ad8b636b",
+      "val": "1a05b193e098e48953bb3f1f3009559d9d9016a83cf6a0804aafa30cf5fafeb0",
+      "test": "65eb6894d3d3b9091d0f156c8350e98a11e886c6536b83ffcbbcd055ac3b4e5c"
+    },
+    "preprocessing": "normal v5, no CLAHE",
+    "label_warnings": [
+      {
+        "split": "train",
+        "label": "train/labels/sewer_o8use_001552.txt",
+        "line": 1,
+        "issue": "zero/nonpositive size or tolerance-bound coordinate"
+      },
+      {
+        "split": "train",
+        "label": "train/labels/sewer_o8use_001990.txt",
+        "line": 1,
+        "issue": "zero/nonpositive size or tolerance-bound coordinate"
+      },
+      {
+        "split": "train",
+        "label": "train/labels/sewer_o8use_011137.txt",
+        "line": 1,
+        "issue": "zero/nonpositive size or tolerance-bound coordinate"
+      },
+      {
+        "split": "val",
+        "label": "valid/labels/sewer_o8use_000875.txt",
+        "line": 1,
+        "issue": "zero/nonpositive size or tolerance-bound coordinate"
+      }
+    ]
+  },
+  "checkpoint": "/kaggle/working/roadeeye_runs/E3_p2_weighted_fusion_v5_normal_seed0_20260928_165814_0161fd/weights/best.pt",
+  "elapsed_before_evaluation_seconds": 36958.723759589,
+  "ultralytics": "8.4.120",
+  "torch": "2.10.0+cu128",
+  "python": "3.12.13",
+  "gpu": "Tesla T4",
+  "cli": {
+    "experiment": "E3",
+    "simam_base": "E3",
+    "repo_id": "AkumaDachi/roadeeye-sewer-defects-v5",
+    "revision": "d88c0ed4f0fd39253eb3866bf2feb9dcf808bae5",
+    "local_data": null,
+    "workspace": "/kaggle/working/roadeeye_workspace",
+    "project": "/kaggle/working/roadeeye_runs",
+    "epochs": 80,
+    "imgsz": 640,
+    "batch": 16,
+    "workers": 2,
+    "device": "0",
+    "seed": 0,
+    "pretrained": "auto",
+    "scratch": false,
+    "dry_run": false,
+    "allow_count_mismatch": false,
+    "amp": true,
+    "eval_split": "val",
+    "evaluate_only": null,
+    "resume": null
+  }
+}

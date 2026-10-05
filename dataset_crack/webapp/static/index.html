@@ -114,6 +114,7 @@
         <div class="section-title"><div><h2 id="modelSectionTitle">Checkpoint register</h2><p>Validation scores come from each run's saved artifacts. Different datasets or evaluators are not a head-to-head test.</p></div><span id="tableModelCount">—</span></div>
         <div class="table-scroll"><table><thead><tr><th>Model</th><th>Dataset</th><th>State</th><th>Parameters</th><th>Val mAP50</th><th>Val mAP50–95</th><th>Val P / R</th><th>Test mAP50</th><th>Test mAP50–95</th><th>Test P / R</th></tr></thead><tbody id="modelsTable"><tr><td colspan="10">Loading checkpoint evidence…</td></tr></tbody></table></div>
         <p class="table-footnote">“90%” here refers to RF-DETR Nano's 90.65% validation mAP50 after 50 epochs—not mAP50–95 or an untouched test-set score. FPS above is measured on this workstation during inference.</p>
+        <p class="table-footnote" id="rfdetrTestNote" aria-live="polite">Checking held-out v5 test evidence for completed RF-DETR runs...</p>
       </section>
     </main>
     <footer><span>RoadEye · sewer defect research</span><span>Local inference only · no automatic upload to external services</span></footer>

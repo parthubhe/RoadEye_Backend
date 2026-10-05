@@ -78,10 +78,23 @@ frames. Do not upload already-CLAHE-processed imagery with those models.
 Validation scores in the table come from `results.csv` (best validation row by
 mAP50-95) or RF-DETR's `best_validation_metrics.json`. Test columns are filled
 only where an unchanged test-split evaluation artifact exists; a dash means
-there is no verified local test result. These scores are not all directly
-comparable: v4/legacy/v6 use different data, and RF-DETR/YOLO have different
-input sizes and evaluators. RF-DETR Nano's 90.65% is validation mAP50 after 50
-epochs, **not** mAP50-95 or an untouched test-set result. Model-error-filtered
+there is no verified local test result. All three locally available RF-DETR
+Nano checkpoints, including the earlier interrupted one, were evaluated on
+all 1,986 held-out v5 test images, with no test annotations removed from the
+RF-DETR working copy:
+
+| RF-DETR Nano | Test mAP50 | Test mAP50-95 | Test precision | Test recall |
+|---|---:|---:|---:|---:|
+| Earlier interrupted checkpoint | 84.33% | 67.15% | 85.15% | 75.12% |
+| 40 epochs | 87.21% | 71.77% | 87.26% | 80.25% |
+| 50 epochs | 89.04% | 73.85% | 86.34% | 83.89% |
+
+The 50-epoch model's 90.65% is **validation** mAP50, not its held-out test
+score. RF-DETR's test outputs are saved alongside each run as
+`full_v5_test_metrics.json`; `full_v5_test_evaluation.json` records the exact
+checkpoint hash, test-split fingerprint and evaluation settings. These scores
+are not all directly comparable: v4/legacy/v6 use different data, and
+RF-DETR/YOLO have different input sizes and evaluators. Model-error-filtered
 v6 scores must not be presented as independent test performance.
 
 Parameter counts are measured from trusted local checkpoints in

@@ -89,6 +89,23 @@ def _rf_metrics(path: Path) -> dict[str, float | None]:
     }
 
 
+def _rf_test_metrics(run: Path) -> dict[str, float]:
+    """Expose only an explicitly saved, provenance-tagged held-out test run."""
+    values = _read_json(run / "full_v5_test_metrics.json")
+    evidence = _read_json(run / "full_v5_test_evaluation.json")
+    if evidence.get("split") != "test" or evidence.get("test_images") != 1986:
+        return {}
+    expected = ("precision", "recall", "mAP_50", "mAP_50_95")
+    if any(f"test/{key}" not in values for key in expected):
+        return {}
+    if any(values.get(key) != value for key, value in evidence.get("metrics", {}).items()):
+        return {}
+    return {key: float(values[f"test/{metric}"]) for key, metric in (
+        ("precision", "precision"), ("recall", "recall"),
+        ("map50", "mAP_50"), ("map5095", "mAP_50_95"),
+    )}
+
+
 def _run_args(run: Path) -> dict:
     path = run / "args.yaml"
     if not path.is_file():
@@ -228,13 +245,16 @@ def discover_models() -> dict[str, ModelSpec]:
                     continue
                 identity = _id(prefix, name)
                 metrics = _rf_metrics(run / "best_validation_metrics.json")
+                test_metrics = _rf_test_metrics(run)
                 config = _read_json(run / "training_config.json")
                 size = int(config.get("model_config", {}).get("resolution", 512))
                 status = "complete" if metrics["map50"] is not None else "partial / no final validation"
                 found[identity] = ModelSpec(
                     identity, _label(name), "RF-DETR Nano", checkpoint, run, "v5 normal", status, size,
                     metrics, parameters.get(identity),
-                    "RF-DETR validation uses its own evaluator; test result is not available." if status == "complete" else "Earlier checkpoint; final validation unavailable.",
+                    ("Held-out v5 test measured with RF-DETR's evaluator; compare protocols before ranking."
+                     if test_metrics else "Held-out test result is not available."),
+                    test_metrics,
                 )
                 continue
 
