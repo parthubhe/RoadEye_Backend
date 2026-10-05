@@ -1,0 +1,6 @@
+__pycache__/
+workspace/
+runs/
+verify_*/
+*.pt
+*.zip

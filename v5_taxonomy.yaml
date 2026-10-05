@@ -1,0 +1,39 @@
+# v5 is a controlled comparability experiment against final_dataset_v2.
+# It keeps v2's five-class remapped taxonomy and train-only oversampling, but
+# removes the two close-up domains identified during the visual audit.
+version: 5
+split:
+  train: 0.70
+  valid: 0.15
+  test: 0.15
+classes:
+  - crack
+  - corrosion_rust
+  - sediment_deposit
+  - root_intrusion
+  - joint_defect
+
+# These are the four sources present in v2 after remapping.  Empty labels are
+# intentionally retained: v5 removes domain-mismatched images only, rather
+# than filtering images whose unsupported source boxes became empty.
+sources:
+  - id: sewer_o8use
+    path: dataset_crack/sewer_remapped
+    repeat_train: 4
+  - id: sewage
+    path: dataset_crack/remapped/sewage
+    repeat_train: 1
+  - id: sewage_defect_detection
+    path: dataset_crack/remapped/sewage_defect_detection
+    repeat_train: 1
+  - id: sewer_defects
+    path: dataset_crack/remapped/sewer_defects
+    repeat_train: 1
+
+excluded_sources:
+  - id: pipeline_crack_detection
+    path: dataset_crack/remapped/pipeline_crack_detection
+    reason: close-up surface-crack domain; not pipe-CCTV POV
+  - id: pipe_inspection
+    path: dataset_crack/remapped/pipe_inspection
+    reason: close-up/surface domain; not pipe-CCTV POV

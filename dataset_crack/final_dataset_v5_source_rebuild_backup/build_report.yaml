@@ -1,0 +1,39 @@
+version: 5
+split_strategy: 'v2 final_merge.py: random group split, source-specific groups'
+seed: 42
+validation_fraction: 0.15
+test_fraction: 0.15
+classes:
+- crack
+- corrosion_rust
+- sediment_deposit
+- root_intrusion
+- joint_defect
+source_images_before_train_repeat:
+  sewer_o8use: 2282
+  sewage: 2400
+  sewage_defect_detection: 980
+  sewer_defects: 978
+train_repeat:
+  sewer_o8use: 4
+  sewage: 1
+  sewage_defect_detection: 1
+  sewer_defects: 1
+images_by_split:
+  train: 9456
+  valid: 922
+  test: 1020
+groups_by_split:
+  train: 764
+  valid: 163
+  test: 163
+output_dir: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v5
+image_mode: hardlink
+excluded_sources:
+- id: pipeline_crack_detection
+  path: dataset_crack/remapped/pipeline_crack_detection
+  reason: close-up surface-crack domain; not pipe-CCTV POV
+- id: pipe_inspection
+  path: dataset_crack/remapped/pipe_inspection
+  reason: close-up/surface domain; not pipe-CCTV POV
+note: Empty labels retained; only close-up domain sources excluded.

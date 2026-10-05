@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102e39">
+  <title>RoadEye — Pipe inspection console</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="RoadEye home">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span><strong>RoadEye</strong><small>Pipe inspection console</small></span>
+      </a>
+      <div class="system-status" id="systemStatus"><span class="status-light"></span><span>Checking local inference server</span></div>
+      <a class="api-link" href="/docs" target="_blank" rel="noopener">API reference</a>
+    </header>
+
+    <main>
+      <div class="intro">
+        <div>
+          <p class="intro-kicker">Defect detection · local workstation</p>
+          <h1>Inspect the inside of the pipe.</h1>
+          <p>Run a trained checkpoint on an image, a video file, or a live camera feed. Results stay on this machine.</p>
+        </div>
+        <div class="intro-index" aria-hidden="true"><span>5</span><small>defect classes</small></div>
+      </div>
+
+      <div class="workspace">
+        <aside class="controls" aria-label="Inspection controls">
+          <div class="panel-heading"><h2>Inspection setup</h2><span id="modelCount">Loading models…</span></div>
+          <label for="modelSelect">Checkpoint</label>
+          <select id="modelSelect" aria-describedby="modelHint"></select>
+          <p class="field-note" id="modelHint">Only checkpoints stored on this computer can run inference.</p>
+
+          <div class="confidence-row"><label for="confidence">Confidence threshold</label><output id="confidenceValue">0.25</output></div>
+          <input type="range" id="confidence" min="0.05" max="0.90" step="0.05" value="0.25">
+
+          <nav class="mode-tabs" aria-label="Inspection source">
+            <button class="mode-tab active" type="button" data-mode="image" aria-selected="true">Image</button>
+            <button class="mode-tab" type="button" data-mode="video" aria-selected="false">Video file</button>
+            <button class="mode-tab" type="button" data-mode="live" aria-selected="false">Live feed</button>
+          </nav>
+
+          <section class="mode-panel" id="imagePanel">
+            <label class="dropzone" for="imageFile" id="imageDropzone">
+              <span class="drop-symbol">＋</span><strong>Choose an inspection image</strong><small>JPG, PNG or WebP · up to 20 MB</small>
+            </label>
+            <input class="file-input" type="file" id="imageFile" accept="image/jpeg,image/png,image/webp,image/bmp">
+            <p class="chosen-file" id="imageFilename">No file selected</p>
+            <button class="primary-button" id="runImage" type="button">Inspect image</button>
+          </section>
+
+          <section class="mode-panel hidden" id="videoPanel">
+            <label class="dropzone" for="videoFile" id="videoDropzone">
+              <span class="drop-symbol">▣</span><strong>Choose a pipe video</strong><small>MP4, AVI, MOV, MKV or WebM · up to 2 GB</small>
+            </label>
+            <input class="file-input" type="file" id="videoFile" accept="video/*,.mkv">
+            <p class="chosen-file" id="videoFilename">No file selected</p>
+            <div class="inline-field"><label for="stride">Process every</label><select id="stride"><option value="1">frame</option><option value="2">2nd frame</option><option value="3">3rd frame</option><option value="4">4th frame</option></select></div>
+            <button class="primary-button" id="runVideo" type="button">Process video</button>
+          </section>
+
+          <section class="mode-panel hidden" id="livePanel">
+            <label for="liveKind">Video source</label>
+            <select id="liveKind"><option value="browser">This browser's camera</option><option value="usb">USB camera on server PC</option><option value="network">RTSP / IP camera stream</option></select>
+            <div id="usbOptions" class="source-options hidden">
+              <label for="cameraIndex">USB camera index</label>
+              <div class="camera-row"><select id="cameraIndex"><option value="0">Camera 0</option><option value="1">Camera 1</option><option value="2">Camera 2</option><option value="3">Camera 3</option></select><button type="button" id="scanCameras" class="quiet-button">Scan</button></div>
+              <p class="field-note" id="cameraHint">Use the camera connected to the computer running this server.</p>
+            </div>
+            <div id="networkOptions" class="source-options hidden">
+              <label for="streamUrl">RTSP or HTTP stream URL</label>
+              <input id="streamUrl" type="url" placeholder="rtsp://camera.local/stream" autocomplete="off">
+              <p class="field-note" id="networkHint">Network streams require the server opt-in flag.</p>
+            </div>
+            <button class="primary-button" id="startLive" type="button">Start live inspection</button>
+            <button class="secondary-button hidden" id="stopLive" type="button">Stop live inspection</button>
+            <p class="field-note">Browser camera needs camera permission and localhost or HTTPS. Start with YOLO26s for faster frame rates.</p>
+          </section>
+
+          <div class="progress-wrap hidden" id="progressWrap" aria-live="polite">
+            <div class="progress-head"><span id="progressLabel">Preparing</span><strong id="progressPercent">0%</strong></div>
+            <progress id="progressBar" max="100" value="0"></progress>
+            <p id="progressDetail">Waiting for the upload.</p>
+          </div>
+          <p class="error-message hidden" id="errorMessage" role="alert"></p>
+        </aside>
+
+        <section class="view-column" aria-label="Inspection result">
+          <div class="view-header"><div><h2>Inspection viewport</h2><p id="viewCaption">Choose a source to begin.</p></div><span class="view-state" id="viewState">Standby</span></div>
+          <div class="viewport" id="viewport">
+            <div class="viewport-empty" id="viewportEmpty"><div class="pipe-rings" aria-hidden="true"><div class="crosshair"></div></div><div class="viewport-message"><strong>Ready for footage</strong><span>Annotated detections will appear here.</span></div></div>
+            <img id="imageResult" class="result-media hidden" alt="Annotated pipe inspection image">
+            <video id="videoResult" class="result-media hidden" controls playsinline></video>
+            <img id="liveResult" class="result-media hidden" alt="Live annotated video frame">
+            <video id="browserCamera" class="hidden" autoplay muted playsinline></video>
+            <canvas id="captureCanvas" class="hidden"></canvas>
+          </div>
+          <div class="telemetry" aria-live="polite">
+            <div><span>Inference</span><strong id="inferenceMs">—</strong><small>milliseconds / frame</small></div>
+            <div><span>Throughput</span><strong id="inferenceFps">—</strong><small>frames / second</small></div>
+            <div><span>Detections</span><strong id="detectionCount">—</strong><small>current image / frame</small></div>
+            <div><span>Model</span><strong id="activeModel">—</strong><small>selected checkpoint</small></div>
+          </div>
+          <div class="result-footer"><p id="resultSummary">The model marks defects; review each prediction before using it as an annotation.</p><a id="downloadResult" class="download-link hidden" href="#" download>Download result</a></div>
+        </section>
+      </div>
+
+      <section class="model-section" aria-labelledby="modelSectionTitle">
+        <div class="section-title"><div><h2 id="modelSectionTitle">Checkpoint register</h2><p>Validation scores come from each run's saved artifacts. Different datasets or evaluators are not a head-to-head test.</p></div><span id="tableModelCount">—</span></div>
+        <div class="table-scroll"><table><thead><tr><th>Model</th><th>Dataset</th><th>State</th><th>Parameters</th><th>Val mAP50</th><th>Val mAP50–95</th><th>Val P / R</th><th>Test mAP50</th><th>Test mAP50–95</th><th>Test P / R</th></tr></thead><tbody id="modelsTable"><tr><td colspan="10">Loading checkpoint evidence…</td></tr></tbody></table></div>
+        <p class="table-footnote">“90%” here refers to RF-DETR Nano's 90.65% validation mAP50 after 50 epochs—not mAP50–95 or an untouched test-set score. FPS above is measured on this workstation during inference.</p>
+        <p class="table-footnote" id="rfdetrTestNote" aria-live="polite">Checking held-out v5 test evidence for completed RF-DETR runs...</p>
+      </section>
+    </main>
+    <footer><span>RoadEye · sewer defect research</span><span>Local inference only · no automatic upload to external services</span></footer>
+  </div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

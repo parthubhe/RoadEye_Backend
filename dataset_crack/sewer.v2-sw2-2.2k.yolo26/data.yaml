@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 50
+names: ['AJ_1', 'AJ_2', 'AJ_3', 'BX_1', 'BX_2', 'BX_3', 'BX_4', 'CJ_1', 'CJ_2', 'CJ_3', 'CJ_4', 'CK_1', 'CK_2', 'CK_3', 'CK_4', 'CQ_4', 'CR_1', 'CR_3', 'FS_1', 'FS_2', 'FS_3', 'JG_1', 'JG_2', 'JG_3', 'JG_4', 'PL_1', 'PL_2', 'PL_3', 'PL_4', 'QF_1', 'QF_2', 'QF_3', 'QF_4', 'SG_1', 'SG_2', 'SG_3', 'SG_4', 'SL_1', 'SL_2', 'SL_3', 'TJ_1', 'TJ_2', 'TJ_3', 'TJ_4', 'TL_1', 'TL_2', 'ZW_1', 'ZW_2', 'ZW_3', 'ZW_4']
+
+roboflow:
+  workspace: sewer-o8use
+  project: sewer
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/sewer-o8use/sewer/dataset/2

@@ -1,0 +1,1 @@
+"""RoadEye local inference console."""

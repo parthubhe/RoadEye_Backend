@@ -1,0 +1,9 @@
+path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\closeup_crack_v4
+train: train/images
+val: valid/images
+test: test/images
+nc: 3
+names:
+  0: crack
+  1: corrosion_rust
+  2: void
