@@ -90,12 +90,13 @@ foreach ($pair in $copies) {
 }
 ```
 
-Start the server and open <http://127.0.0.1:8000>. Its model selector and
+Start the server and open <http://127.0.0.1:8001>. Its model selector and
 comparison table are available in the page; API docs are at
-<http://127.0.0.1:8000/docs>.
+<http://127.0.0.1:8001/docs>. The page includes five quick test-frame examples
+and drag-and-drop uploads for your own images or videos.
 
 ```powershell
-venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8000
+venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8001
 ```
 
 The published release does not include YOLO `results.csv` training logs, so a

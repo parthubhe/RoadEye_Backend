@@ -67,6 +67,28 @@ class WebAppTests(unittest.TestCase):
             self.assertEqual(result.status_code, 200)
             self.assertEqual(result.headers["content-type"], "image/jpeg")
 
+    def test_bundled_test_examples_are_available_for_inference(self):
+        page = self.client.get("/")
+        self.assertIn('id="examples"', page.text)
+        for name in (
+            "sewage_000004.jpg", "sewer_o8use_000033.jpg",
+            "sewage_defect_detection_000573.jpg", "sewer_o8use_000154.jpg",
+            "sewage_defect_detection_000132.jpg",
+        ):
+            path = f"/static/examples/{name}"
+            self.assertIn(path, page.text)
+            sample = self.client.get(path)
+            self.assertEqual(sample.status_code, 200)
+            self.assertEqual(sample.headers["content-type"], "image/jpeg")
+            self.assertTrue(sample.content.startswith(b"\xff\xd8"))
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(server, "JOBS_ROOT", Path(directory)), mock.patch.object(server.manager, "infer", side_effect=fake_inference):
+            response = self.client.post(
+                "/api/infer/image", params={"model_id": self.model_id, "confidence": .25},
+                files={"file": ("sewage_000004.jpg", self.client.get("/static/examples/sewage_000004.jpg").content, "image/jpeg")},
+            )
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertEqual(response.json()["detections"][0]["class_name"], "crack")
+
     def test_unknown_model_rejected(self):
         response = self.client.post(
             "/api/infer/image", params={"model_id": "../../model"},

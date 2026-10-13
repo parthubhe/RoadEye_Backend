@@ -1,5 +1,7 @@
 const $ = (id) => document.getElementById(id);
-const state = { models: [], mode: "image", socket: null, cameraStream: null, pollTimer: null, busy: false, networkEnabled: false };
+const state = { models: [], mode: "image", socket: null, cameraStream: null, pollTimer: null, busy: false, networkEnabled: false, imageFile: null, videoFile: null, previewUrl: null };
+const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "bmp"]);
+const VIDEO_EXTENSIONS = new Set(["mp4", "avi", "mov", "mkv", "webm"]);
 
 function pct(value) { return value == null ? "—" : `${(value * 100).toFixed(2)}%`; }
 function params(value) { return value == null ? "—" : `${(value / 1e6).toFixed(2)} M`; }
@@ -33,6 +35,10 @@ function setBusy(busy) {
   state.busy = busy;
   $("runImage").disabled = busy;
   $("runVideo").disabled = busy;
+  $("runExample").disabled = busy || !selectedModel();
+  $("modelSelect").disabled = busy;
+  $("exampleModelSelect").disabled = busy;
+  document.querySelectorAll(".example-card").forEach(card => { card.disabled = busy; });
 }
 function setView(kind, source, caption, badge = "Result") {
   if (kind !== "video") $("videoResult").pause();
@@ -44,6 +50,10 @@ function setView(kind, source, caption, badge = "Result") {
   $("viewCaption").textContent = caption;
   $("viewState").textContent = badge;
   $("viewState").classList.toggle("active", kind !== "empty");
+}
+function clearPreview() {
+  if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
+  state.previewUrl = null;
 }
 function telemetry(ms, fps, count, label) {
   $("inferenceMs").textContent = ms == null ? "—" : Number(ms).toFixed(1);
@@ -108,17 +118,22 @@ function renderModels() {
     ? `Held-out v5 test (1,986 images): RF-DETR Nano 40 epochs ${pct(rf40.test_metrics.map50)} mAP50 / ${pct(rf40.test_metrics.map5095)} mAP50-95; 50 epochs ${pct(rf50.test_metrics.map50)} mAP50 / ${pct(rf50.test_metrics.map5095)} mAP50-95.${rfPartial ? ` Earlier interrupted checkpoint ${pct(rfPartial.test_metrics.map50)} mAP50 / ${pct(rfPartial.test_metrics.map5095)} mAP50-95.` : ""} These are test results, separate from validation scores.`
     : "RF-DETR held-out test results are not available for both completed checkpoints yet; blank table cells mean no verified test artifact.";
   $("modelCount").textContent = `${state.models.filter(m => m.available).length} local checkpoints`;
-  const select = $("modelSelect");
-  select.replaceChildren();
-  for (const model of state.models.filter(m => m.available)) {
-    const option = document.createElement("option");
-    option.value = model.id;
-    option.textContent = model.label;
-    select.appendChild(option);
+  for (const select of [$("modelSelect"), $("exampleModelSelect")]) {
+    select.replaceChildren();
+    for (const model of state.models.filter(m => m.available)) {
+      const option = document.createElement("option");
+      option.value = model.id;
+      option.textContent = model.label;
+      select.appendChild(option);
+    }
   }
   const preferred = state.models.find(m => m.label === "YOLO26s · v5 baseline" && m.available);
-  if (preferred) select.value = preferred.id;
+  if (preferred) {
+    $("modelSelect").value = preferred.id;
+    $("exampleModelSelect").value = preferred.id;
+  }
   updateModelHint();
+  setBusy(false);
 }
 function updateModelHint() {
   const model = selectedModel();
@@ -144,11 +159,7 @@ function upload(url, file, onUpload, onComplete, onError) {
   form.append("file", file);
   xhr.send(form);
 }
-function inspectImage() {
-  const file = $("imageFile").files[0], model = selectedModel();
-  if (!file || !model) { error("Choose an image and an available checkpoint first."); return; }
-  if (state.busy) return;
-  clearError(); setBusy(true); setDownload(null);
+function runImageUpload(file, model, origin = "custom") {
   progress("Uploading image", 0, file.name);
   const query = new URLSearchParams({ model_id: model.id, confidence: confidence() });
   upload(`/api/infer/image?${query}`, file,
@@ -157,12 +168,47 @@ function inspectImage() {
     data => {
       setBusy(false); hideProgress();
       setView("image", `${data.image_url}?t=${Date.now()}`, `${file.name} · ${data.width} × ${data.height}`, "Inspected");
+      clearPreview();
       telemetry(data.inference_ms, null, data.detections.length, model.label);
       $("resultSummary").textContent = `${data.detections.length} detections · ${data.model_load_ms ? `model load ${data.model_load_ms.toFixed(0)} ms · ` : ""}inference ${data.inference_ms.toFixed(1)} ms. Review the boxes before use.`;
       setDownload(data.image_url, "roadeye_annotated.jpg");
+      if (origin === "example") {
+        $("exampleResultImage").src = `${data.image_url}?t=${Date.now()}`;
+        $("exampleResultTitle").textContent = `${file.name} · ${model.label}`;
+        $("exampleResultMeta").textContent = `${data.detections.length} detections · ${data.inference_ms.toFixed(1)} ms inference. Compare these predictions with the source frame; they may be wrong.`;
+        $("exampleResult").classList.remove("hidden");
+        $("exampleStatus").textContent = `Inspection complete with ${model.label}.`;
+        $("exampleResult").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+      }
     },
-    message => { setBusy(false); hideProgress(); error(message); }
+    message => { setBusy(false); hideProgress(); error(message); if (origin === "example") $("exampleStatus").textContent = message; }
   );
+}
+function inspectImage() {
+  const file = state.imageFile, model = selectedModel();
+  if (!file || !model) { error("Choose an image and an available checkpoint first."); return; }
+  if (state.busy) return;
+  clearError(); setBusy(true); setDownload(null);
+  runImageUpload(file, model);
+}
+async function inspectExample() {
+  const card = document.querySelector('.example-card[aria-pressed="true"]'), model = selectedModel();
+  if (!card || !model) { $("exampleStatus").textContent = "Select an example and an available checkpoint first."; return; }
+  if (state.busy) return;
+  clearError(); setBusy(true); setDownload(null);
+  $("exampleResult").classList.add("hidden");
+  $("exampleStatus").textContent = `Loading ${card.dataset.name}…`;
+  progress("Loading example", null, card.dataset.name);
+  try {
+    const response = await fetch(card.dataset.src);
+    if (!response.ok) throw new Error(`Example image could not be loaded (${response.status}).`);
+    const file = new File([await response.blob()], card.dataset.name, { type: "image/jpeg" });
+    $("exampleStatus").textContent = `Running ${model.label} on ${card.dataset.name}…`;
+    runImageUpload(file, model, "example");
+  } catch (cause) {
+    setBusy(false); hideProgress(); error(cause.message);
+    $("exampleStatus").textContent = cause.message;
+  }
 }
 async function pollVideo(jobId, model, filename) {
   try {
@@ -175,6 +221,7 @@ async function pollVideo(jobId, model, filename) {
       progress("Complete", 100, `${job.frames_written} annotated frames`);
       setTimeout(hideProgress, 1500);
       setView("video", job.output_url, `${filename} · ${job.frames_written} frames written`, "Ready to play");
+      clearPreview();
       telemetry(job.inference_ms_avg, job.processing_fps, job.detections, model.label);
       $("resultSummary").textContent = `Processed ${job.frames_written} frames at ${job.processing_fps} output FPS. Download the annotated MP4 if playback is unsupported by your browser.`;
       setDownload(job.output_url, "roadeye_annotated.mp4");
@@ -188,7 +235,7 @@ async function pollVideo(jobId, model, filename) {
   } catch (cause) { setBusy(false); hideProgress(); error(cause.message); }
 }
 function inspectVideo() {
-  const file = $("videoFile").files[0], model = selectedModel();
+  const file = state.videoFile, model = selectedModel();
   if (!file || !model) { error("Choose a video and an available checkpoint first."); return; }
   if (state.busy) return;
   clearError(); setBusy(true); setDownload(null);
@@ -276,20 +323,68 @@ async function scanCameras() {
     for (const camera of data.cameras) { const option = document.createElement("option"); option.value = camera.index; option.textContent = camera.label; select.appendChild(option); }
   } catch (cause) { $("cameraHint").textContent = cause.message; }
 }
-function wireDropzone(inputId, zoneId) {
+function chooseFile(kind, file) {
+  if (!file || state.busy) return;
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  const isImage = kind === "image";
+  if (!(isImage ? IMAGE_EXTENSIONS : VIDEO_EXTENSIONS).has(extension)) {
+    error(isImage ? "Use a JPG, PNG, WebP or BMP image." : "Use an MP4, AVI, MOV, MKV or WebM video.");
+    return;
+  }
+  if (file.size > (isImage ? 20 * 1024 * 1024 : 2 * 1024 * 1024 * 1024)) {
+    error(isImage ? "Image exceeds the 20 MB limit." : "Video exceeds the 2 GB limit.");
+    return;
+  }
+  switchMode(kind);
+  state[isImage ? "imageFile" : "videoFile"] = file;
+  $(`${kind}Filename`).textContent = file.name;
+  setDownload(null);
+  clearPreview();
+  state.previewUrl = URL.createObjectURL(file);
+  setView(kind, state.previewUrl, `${file.name} · ready to inspect`, "Preview");
+  telemetry(null, null, null, selectedModel()?.label);
+  $("resultSummary").textContent = `Preview only. Choose a checkpoint and ${isImage ? "inspect the image" : "process the video"} to see detections.`;
+}
+function wireDropzone(inputId, zoneId, kind) {
   const input = $(inputId), zone = $(zoneId);
-  zone.addEventListener("dragover", event => { event.preventDefault(); zone.classList.add("drag-over"); });
-  zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
-  zone.addEventListener("drop", event => {
-    event.preventDefault(); zone.classList.remove("drag-over");
-    if (event.dataTransfer.files.length) { input.files = event.dataTransfer.files; input.dispatchEvent(new Event("change")); }
+  let dragDepth = 0;
+  zone.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); input.click(); }
   });
-  input.addEventListener("change", () => { $(`${inputId === "imageFile" ? "image" : "video"}Filename`).textContent = input.files[0]?.name || "No file selected"; });
+  zone.addEventListener("dragenter", event => { event.preventDefault(); dragDepth++; zone.classList.add("drag-over"); });
+  zone.addEventListener("dragover", event => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; });
+  zone.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) zone.classList.remove("drag-over"); });
+  zone.addEventListener("drop", event => {
+    event.preventDefault(); event.stopPropagation(); dragDepth = 0; zone.classList.remove("drag-over");
+    chooseFile(kind, event.dataTransfer.files[0]);
+  });
+  input.addEventListener("change", () => { chooseFile(kind, input.files[0]); input.value = ""; });
+}
+function selectExample(card) {
+  for (const item of document.querySelectorAll(".example-card")) {
+    const selected = item === card;
+    item.classList.toggle("selected", selected);
+    item.setAttribute("aria-pressed", String(selected));
+  }
+  $("exampleSelected").textContent = card.dataset.label;
+  $("exampleFilename").textContent = card.dataset.name;
+  $("exampleStatus").textContent = `${card.dataset.label} frame selected. Choose a checkpoint, then run the example.`;
+  $("exampleResult").classList.add("hidden");
+}
+function syncModelSelection(source) {
+  const other = source === "modelSelect" ? $("exampleModelSelect") : $("modelSelect");
+  other.value = $(source).value;
+  updateModelHint();
+  $("exampleResult").classList.add("hidden");
+  $("exampleStatus").textContent = "Checkpoint changed. Run the selected example to see its predictions.";
 }
 async function init() {
   document.querySelectorAll(".mode-tab").forEach(tab => tab.addEventListener("click", () => switchMode(tab.dataset.mode)));
   $("confidence").addEventListener("input", () => $("confidenceValue").textContent = confidence().toFixed(2));
-  $("modelSelect").addEventListener("change", updateModelHint);
+  $("modelSelect").addEventListener("change", () => syncModelSelection("modelSelect"));
+  $("exampleModelSelect").addEventListener("change", () => syncModelSelection("exampleModelSelect"));
+  document.querySelectorAll(".example-card").forEach(card => card.addEventListener("click", () => selectExample(card)));
+  $("runExample").addEventListener("click", inspectExample);
   $("runImage").addEventListener("click", inspectImage);
   $("runVideo").addEventListener("click", inspectVideo);
   $("startLive").addEventListener("click", startLive);
@@ -299,7 +394,17 @@ async function init() {
     $("usbOptions").classList.toggle("hidden", $("liveKind").value !== "usb");
     $("networkOptions").classList.toggle("hidden", $("liveKind").value !== "network");
   });
-  wireDropzone("imageFile", "imageDropzone"); wireDropzone("videoFile", "videoDropzone");
+  wireDropzone("imageFile", "imageDropzone", "image"); wireDropzone("videoFile", "videoDropzone", "video");
+  document.addEventListener("dragover", event => { if (Array.from(event.dataTransfer?.types || []).includes("Files")) event.preventDefault(); });
+  document.addEventListener("drop", event => {
+    if (!event.dataTransfer?.files?.length) return;
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (IMAGE_EXTENSIONS.has(extension)) chooseFile("image", file);
+    else if (VIDEO_EXTENSIONS.has(extension)) chooseFile("video", file);
+    else error("Drop a supported image or video file.");
+  });
   try {
     const [healthResponse, modelsResponse] = await Promise.all([fetch("/api/health"), fetch("/api/models")]);
     if (!healthResponse.ok || !modelsResponse.ok) throw new Error("The local inference server did not respond.");

@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#102e39">
   <title>RoadEye — Pipe inspection console</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css?v=2">
 </head>
 <body>
   <div class="shell">
@@ -22,14 +22,15 @@
     <main>
       <div class="intro">
         <div>
-          <p class="intro-kicker">Defect detection · local workstation</p>
+          <p class="intro-kicker">Pipe inspection, on your workstation</p>
           <h1>Inspect the inside of the pipe.</h1>
-          <p>Run a trained checkpoint on an image, a video file, or a live camera feed. Results stay on this machine.</p>
+          <p>Find cracks, corrosion, sediment, roots, and joint defects in a still frame, a video, or a live camera feed. Inference stays on this machine.</p>
+          <div class="intro-actions"><a class="hero-cta" href="#examples">Try out some examples</a><a class="hero-link" href="#upload-workspace">Use my own file</a></div>
         </div>
-        <div class="intro-index" aria-hidden="true"><span>5</span><small>defect classes</small></div>
+        <div class="intro-index" aria-hidden="true"><span>05</span><small>defect classes</small></div>
       </div>
 
-      <div class="workspace">
+      <div class="workspace" id="upload-workspace">
         <aside class="controls" aria-label="Inspection controls">
           <div class="panel-heading"><h2>Inspection setup</h2><span id="modelCount">Loading models…</span></div>
           <label for="modelSelect">Checkpoint</label>
@@ -46,8 +47,8 @@
           </nav>
 
           <section class="mode-panel" id="imagePanel">
-            <label class="dropzone" for="imageFile" id="imageDropzone">
-              <span class="drop-symbol">＋</span><strong>Choose an inspection image</strong><small>JPG, PNG or WebP · up to 20 MB</small>
+            <label class="dropzone" for="imageFile" id="imageDropzone" role="button" tabindex="0" aria-controls="imageFile">
+              <span class="drop-symbol" aria-hidden="true">＋</span><strong>Drop an image here</strong><small>or click to browse · JPG, PNG, WebP, BMP · max 20 MB</small>
             </label>
             <input class="file-input" type="file" id="imageFile" accept="image/jpeg,image/png,image/webp,image/bmp">
             <p class="chosen-file" id="imageFilename">No file selected</p>
@@ -55,8 +56,8 @@
           </section>
 
           <section class="mode-panel hidden" id="videoPanel">
-            <label class="dropzone" for="videoFile" id="videoDropzone">
-              <span class="drop-symbol">▣</span><strong>Choose a pipe video</strong><small>MP4, AVI, MOV, MKV or WebM · up to 2 GB</small>
+            <label class="dropzone" for="videoFile" id="videoDropzone" role="button" tabindex="0" aria-controls="videoFile">
+              <span class="drop-symbol" aria-hidden="true">▣</span><strong>Drop a video here</strong><small>or click to browse · MP4, AVI, MOV, MKV, WebM · max 2 GB</small>
             </label>
             <input class="file-input" type="file" id="videoFile" accept="video/*,.mkv">
             <p class="chosen-file" id="videoFilename">No file selected</p>
@@ -110,6 +111,25 @@
         </section>
       </div>
 
+      <section class="examples-section" id="examples" aria-labelledby="examplesTitle">
+        <div class="examples-heading"><div><h2 id="examplesTitle">Try out some examples</h2><p>Five unmodified frames from the v5 held-out test set. Pick a frame and a checkpoint to see what the model finds.</p></div><span>5 test frames</span></div>
+        <div class="examples-grid" role="group" aria-label="Choose a test image">
+          <button class="example-card selected" type="button" aria-pressed="true" data-src="/static/examples/sewage_000004.jpg" data-label="Crack" data-name="sewage_000004.jpg"><img src="/static/examples/sewage_000004.jpg" alt="Pipe wall with a visible crack" loading="lazy"><span class="example-card-body"><strong>Crack</strong><small>sewage_000004.jpg</small></span></button>
+          <button class="example-card" type="button" aria-pressed="false" data-src="/static/examples/sewer_o8use_000033.jpg" data-label="Corrosion / rust" data-name="sewer_o8use_000033.jpg"><img src="/static/examples/sewer_o8use_000033.jpg" alt="Pipe interior with a rust-marked wall" loading="lazy"><span class="example-card-body"><strong>Corrosion / rust</strong><small>sewer_o8use_000033.jpg</small></span></button>
+          <button class="example-card" type="button" aria-pressed="false" data-src="/static/examples/sewage_defect_detection_000573.jpg" data-label="Sediment deposit" data-name="sewage_defect_detection_000573.jpg"><img src="/static/examples/sewage_defect_detection_000573.jpg" alt="Pipe interior with sediment at the bottom" loading="lazy"><span class="example-card-body"><strong>Sediment deposit</strong><small>sewage_defect_detection_000573.jpg</small></span></button>
+          <button class="example-card" type="button" aria-pressed="false" data-src="/static/examples/sewer_o8use_000154.jpg" data-label="Root intrusion" data-name="sewer_o8use_000154.jpg"><img src="/static/examples/sewer_o8use_000154.jpg" alt="Roots extending into a pipe" loading="lazy"><span class="example-card-body"><strong>Root intrusion</strong><small>sewer_o8use_000154.jpg</small></span></button>
+          <button class="example-card" type="button" aria-pressed="false" data-src="/static/examples/sewage_defect_detection_000132.jpg" data-label="Joint defect" data-name="sewage_defect_detection_000132.jpg"><img src="/static/examples/sewage_defect_detection_000132.jpg" alt="Pipe segment with a visible joint" loading="lazy"><span class="example-card-body"><strong>Joint defect</strong><small>sewage_defect_detection_000132.jpg</small></span></button>
+        </div>
+        <div class="example-workbench">
+          <div class="example-choice"><span class="example-choice-label">Selected frame</span><strong id="exampleSelected">Crack</strong><small id="exampleFilename">sewage_000004.jpg</small></div>
+          <div class="example-model"><label for="exampleModelSelect">Run with</label><select id="exampleModelSelect" aria-describedby="exampleStatus"></select></div>
+          <button class="primary-button example-run" id="runExample" type="button">Run selected example</button>
+        </div>
+        <p class="example-status" id="exampleStatus" aria-live="polite">Ready to inspect. Example labels are from the dataset, not model predictions.</p>
+        <div class="example-result hidden" id="exampleResult"><img id="exampleResultImage" alt="Annotated result for the selected example"><div><strong id="exampleResultTitle">Inspection complete</strong><p id="exampleResultMeta"></p><a href="#viewport">View in inspection viewport</a></div></div>
+        <p class="example-caveat">These held-out images are for an interactive demonstration. Do not use their outcomes to tune the model or claim new test performance.</p>
+      </section>
+
       <section class="model-section" aria-labelledby="modelSectionTitle">
         <div class="section-title"><div><h2 id="modelSectionTitle">Checkpoint register</h2><p>Validation scores come from each run's saved artifacts. Different datasets or evaluators are not a head-to-head test.</p></div><span id="tableModelCount">—</span></div>
         <div class="table-scroll"><table><thead><tr><th>Model</th><th>Dataset</th><th>State</th><th>Parameters</th><th>Val mAP50</th><th>Val mAP50–95</th><th>Val P / R</th><th>Test mAP50</th><th>Test mAP50–95</th><th>Test P / R</th></tr></thead><tbody id="modelsTable"><tr><td colspan="10">Loading checkpoint evidence…</td></tr></tbody></table></div>
@@ -119,6 +139,6 @@
     </main>
     <footer><span>RoadEye · sewer defect research</span><span>Local inference only · no automatic upload to external services</span></footer>
   </div>
-  <script src="/static/app.js" defer></script>
+  <script src="/static/app.js?v=2" defer></script>
 </body>
 </html>

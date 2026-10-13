@@ -11,11 +11,11 @@ From the RoadEye project root, with the existing training venv:
 
 ```powershell
 venv\Scripts\python.exe -m pip install -r dataset_crack\webapp\requirements.txt
-venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8000
+venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8001
 ```
 
-Open <http://127.0.0.1:8000>. OpenAPI documentation is at
-<http://127.0.0.1:8000/docs>. Do not use `--reload` for normal inference:
+Open <http://127.0.0.1:8001>. OpenAPI documentation is at
+<http://127.0.0.1:8001/docs>. Do not use `--reload` for normal inference:
 restarts interrupt video jobs and can cause repeated GPU model loading.
 
 For RTSP/HTTP cameras on a trusted local network, opt in before starting the
@@ -23,7 +23,7 @@ server:
 
 ```powershell
 $env:ROADEYE_ALLOW_NETWORK_STREAMS = "1"
-venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8000
+venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8001
 ```
 
 Do not bind this app to `0.0.0.0` or a public interface without adding
@@ -32,6 +32,15 @@ Network camera URLs can contain credentials; keep the browser and console
 private. The server only accepts `rtsp`, `rtsps`, `http`, and `https` schemes.
 
 ## Modes
+
+The page includes five original v5 test-split frames under **Try out some
+examples**. Choose a frame and a local model to run it; the annotated result
+appears there and in the main viewport. These are demo examples, not new
+evaluation runs. For your own files, use either file picker or drag an image or
+video onto its drop area (or anywhere on the page). Images are limited to 20 MB
+and videos to 2 GB. Source images are bundled under
+`dataset_crack/webapp/static/examples/`; the full dataset is not required for
+the examples to load, but a local checkpoint is required to run inference.
 
 | Mode | Endpoint | Behavior |
 |---|---|---|
