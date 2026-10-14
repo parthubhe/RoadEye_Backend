@@ -1,4 +1,4 @@
-# RoadEye local inference console
+# PipeScout local inference console
 
 This is a localhost-only FastAPI app for the trained sewer-defect checkpoints.
 It supports image upload, background video processing, a browser webcam,
@@ -7,7 +7,7 @@ upload images to a cloud service.
 
 ## Run on Windows
 
-From the RoadEye project root, with the existing training venv:
+From the repository root, with the existing training venv:
 
 ```powershell
 venv\Scripts\python.exe -m pip install -r dataset_crack\webapp\requirements.txt
@@ -22,7 +22,7 @@ For RTSP/HTTP cameras on a trusted local network, opt in before starting the
 server:
 
 ```powershell
-$env:ROADEYE_ALLOW_NETWORK_STREAMS = "1"
+$env:PIPESCOUT_ALLOW_NETWORK_STREAMS = "1"
 venv\Scripts\python.exe -m uvicorn dataset_crack.webapp.app:app --host 127.0.0.1 --port 8001
 ```
 
@@ -60,10 +60,14 @@ feeds. USB and IP-camera capture could not be exercised without that hardware;
 the browser-camera and source routes are implemented and can be tested locally.
 
 On CUDA, RF-DETR uses in-place FP16 inference (`compile=False`) by default to
-reduce latency and VRAM use. Set `ROADEYE_RFDETR_FP16=0` before starting the
+reduce latency and VRAM use. Set `PIPESCOUT_RFDETR_FP16=0` before starting the
 server if you need unoptimized FP32 predictions. The saved validation scores
 were produced with the training/evaluation setup, not this optional live
 inference precision; small output differences are possible.
+
+The older `ROADEYE_ALLOW_NETWORK_STREAMS` and `ROADEYE_RFDETR_FP16` environment
+variables remain supported for existing launch setups. PipeScout variables
+take precedence when both names are set.
 
 For videos, `stride=2` processes every second input frame and writes an output
 at half the source FPS. The progress bar reports decoded source frames. OpenCV

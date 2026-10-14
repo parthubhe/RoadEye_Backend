@@ -171,7 +171,7 @@ function runImageUpload(file, model, origin = "custom") {
       clearPreview();
       telemetry(data.inference_ms, null, data.detections.length, model.label);
       $("resultSummary").textContent = `${data.detections.length} detections · ${data.model_load_ms ? `model load ${data.model_load_ms.toFixed(0)} ms · ` : ""}inference ${data.inference_ms.toFixed(1)} ms. Review the boxes before use.`;
-      setDownload(data.image_url, "roadeye_annotated.jpg");
+      setDownload(data.image_url, "pipescout_annotated.jpg");
       if (origin === "example") {
         $("exampleResultImage").src = `${data.image_url}?t=${Date.now()}`;
         $("exampleResultTitle").textContent = `${file.name} · ${model.label}`;
@@ -224,7 +224,7 @@ async function pollVideo(jobId, model, filename) {
       clearPreview();
       telemetry(job.inference_ms_avg, job.processing_fps, job.detections, model.label);
       $("resultSummary").textContent = `Processed ${job.frames_written} frames at ${job.processing_fps} output FPS. Download the annotated MP4 if playback is unsupported by your browser.`;
-      setDownload(job.output_url, "roadeye_annotated.mp4");
+      setDownload(job.output_url, "pipescout_annotated.mp4");
       return;
     }
     const fraction = job.progress;
@@ -297,7 +297,7 @@ async function startLive() {
       await $("browserCamera").play();
       path = "/ws/live/browser";
     } else {
-      if (kind === "network" && !state.networkEnabled) throw new Error("Enable ROADEYE_ALLOW_NETWORK_STREAMS=1 when starting the local server.");
+      if (kind === "network" && !state.networkEnabled) throw new Error("Enable PIPESCOUT_ALLOW_NETWORK_STREAMS=1 when starting the local server.");
       path = "/ws/live/source";
       query = { ...query, kind, source: kind === "usb" ? $("cameraIndex").value : $("streamUrl").value.trim(), max_fps: 15 };
       if (!query.source) throw new Error("Enter a video source.");
@@ -411,7 +411,7 @@ async function init() {
     const health = await healthResponse.json(), inventory = await modelsResponse.json();
     state.models = inventory.models;
     state.networkEnabled = health.network_streams_enabled;
-    $("networkHint").textContent = health.network_streams_enabled ? "Use an RTSP/HTTP URL reachable from the server PC." : "Set ROADEYE_ALLOW_NETWORK_STREAMS=1 to enable network streams on this local server.";
+    $("networkHint").textContent = health.network_streams_enabled ? "Use an RTSP/HTTP URL reachable from the server PC." : "Set PIPESCOUT_ALLOW_NETWORK_STREAMS=1 to enable network streams on this local server.";
     renderModels();
     setStatus(health.gpu ? `Ready · ${health.gpu}` : "Ready · CPU inference", "ready");
   } catch (cause) { setStatus("Server unavailable", "error"); error(cause.message); }

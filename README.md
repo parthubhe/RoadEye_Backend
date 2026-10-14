@@ -9,7 +9,7 @@ https://github.com/astralranger/road-eye
 
 ---
 
-## Sewer-defect detection server
+## PipeScout sewer-defect detection server
 
 The `dataset_crack/webapp` FastAPI server is a separate, local pipe-inspection
 demo. It detects five classes: `crack`, `corrosion_rust`, `sediment_deposit`,

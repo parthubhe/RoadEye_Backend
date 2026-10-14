@@ -1,1 +1,1 @@
-"""RoadEye local inference console."""
+"""PipeScout local inference console."""

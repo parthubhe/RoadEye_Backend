@@ -1,4 +1,4 @@
-"""FastAPI app for local RoadEye image, video and live pipe inspection."""
+"""FastAPI app for local PipeScout image, video and live pipe inspection."""
 
 from __future__ import annotations
 
@@ -30,7 +30,10 @@ MAX_IMAGE_BYTES = 20 * 1024 * 1024
 MAX_FRAME_BYTES = 4 * 1024 * 1024
 MAX_VIDEO_BYTES = 2 * 1024 * 1024 * 1024
 VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
-ALLOW_NETWORK_STREAMS = os.environ.get("ROADEYE_ALLOW_NETWORK_STREAMS", "0") == "1"
+ALLOW_NETWORK_STREAMS = os.environ.get(
+    "PIPESCOUT_ALLOW_NETWORK_STREAMS",
+    os.environ.get("ROADEYE_ALLOW_NETWORK_STREAMS", "0"),
+) == "1"
 
 catalog = discover_models()
 manager = ModelManager(catalog)
@@ -38,9 +41,9 @@ jobs: dict[str, dict] = {}
 jobs_lock = threading.Lock()
 source_locks: dict[str, threading.Lock] = {}
 source_locks_guard = threading.Lock()
-executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="roadeye-video")
+executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="pipescout-video")
 
-app = FastAPI(title="RoadEye Pipe Inspection", version="1.0.0")
+app = FastAPI(title="PipeScout Pipe Inspection", version="1.0.0")
 app.mount("/static", StaticFiles(directory=STATIC_ROOT), name="static")
 
 
@@ -355,7 +358,7 @@ async def live_source(
     elif kind == "network":
         parsed = urlparse(source)
         if not ALLOW_NETWORK_STREAMS or parsed.scheme not in {"rtsp", "rtsps", "http", "https"} or not parsed.hostname:
-            await ws.send_json({"type": "error", "message": "Network streams are disabled or the URL is invalid. Set ROADEYE_ALLOW_NETWORK_STREAMS=1 on the local server."})
+            await ws.send_json({"type": "error", "message": "Network streams are disabled or the URL is invalid. Set PIPESCOUT_ALLOW_NETWORK_STREAMS=1 on the local server."})
             await ws.close(code=1008)
             return
         capture_source = source

@@ -38,7 +38,11 @@ class WebAppTests(unittest.TestCase):
         self.assertGreaterEqual(len(models), 15)
         self.assertTrue(all(model["parameters"] for model in models if model["available"]))
         self.assertTrue(any(model["id"] == "cloud__e3" and not model["available"] for model in models))
-        self.assertEqual(self.client.get("/").status_code, 200)
+        home = self.client.get("/")
+        self.assertEqual(home.status_code, 200)
+        self.assertIn("<strong>PipeScout</strong>", home.text)
+        self.assertIn("PipeScout", home.text)
+        self.assertEqual(self.client.get("/openapi.json").json()["info"]["title"], "PipeScout Pipe Inspection")
         self.assertEqual(self.client.get("/api/health").status_code, 200)
 
     def test_rf_detr_test_metrics_require_provenance(self):

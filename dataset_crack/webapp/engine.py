@@ -128,7 +128,10 @@ class ModelManager:
                 pretrain_weights=str(spec.checkpoint), num_classes=5,
                 resolution=spec.img_size, device=device,
             )
-            if device == "cuda" and os.environ.get("ROADEYE_RFDETR_FP16", "1") == "1":
+            if device == "cuda" and os.environ.get(
+                "PIPESCOUT_RFDETR_FP16",
+                os.environ.get("ROADEYE_RFDETR_FP16", "1"),
+            ) == "1":
                 # In-place casting avoids keeping two ~30M-parameter copies on
                 # the laptop GPU; no TorchScript compile or warm-up graph.
                 self.model.inference(compile=False, dtype=torch.float16, inplace=True)
