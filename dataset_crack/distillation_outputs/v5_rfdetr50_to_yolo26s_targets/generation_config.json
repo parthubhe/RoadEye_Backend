@@ -1,0 +1,17 @@
+{
+  "source_yaml": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5\\data.yaml",
+  "teacher_checkpoint": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\rfdetr_nano_v5_normal_512_seed0_20261003_193042_66b2b7\\checkpoint_best_total.pth",
+  "teacher_sha256": "0a06800a796f372936c552b077839378bb827c36be8072393476ce6dd3086963",
+  "train_images": 9486,
+  "confidence": 0.85,
+  "overlap_iou": 0.3,
+  "max_additions": 3,
+  "classes": [
+    "crack",
+    "corrosion_rust",
+    "sediment_deposit",
+    "root_intrusion",
+    "joint_defect"
+  ],
+  "method": "high-confidence hard-target response distillation; original ground truth retained"
+}

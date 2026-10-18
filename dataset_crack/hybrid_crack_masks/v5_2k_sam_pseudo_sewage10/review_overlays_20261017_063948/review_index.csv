@@ -1,0 +1,6 @@
+split,image,kind,source_family,mask_pixels,joint_overlap_fraction,image_width,image_height,box_classes,overlay
+train,sewage_007526.jpg,positive,sewage,11969,0.0,640,640,crack;crack,train/sewage_007526_overlay.jpg
+train,sewage_012340.jpg,positive,sewage,5067,0.0,640,640,crack,train/sewage_012340_overlay.jpg
+train,sewage_003275.jpg,positive,sewage,8218,0.0,640,640,crack;crack;crack;crack,train/sewage_003275_overlay.jpg
+train,sewage_002152.jpg,positive,sewage,11497,0.0,640,640,crack,train/sewage_002152_overlay.jpg
+train,sewage_004228.jpg,positive,sewage,4871,0.0,640,640,crack;crack,train/sewage_004228_overlay.jpg

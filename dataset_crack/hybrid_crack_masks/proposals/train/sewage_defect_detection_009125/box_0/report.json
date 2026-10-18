@@ -1,0 +1,109 @@
+{
+  "experiment": "box_0",
+  "seconds": 0.32,
+  "detections_above_threshold": 88,
+  "top_n": 4,
+  "candidates": [
+    {
+      "rank": 1,
+      "index": 19,
+      "score": 0.93652,
+      "mask_pixels": 2517,
+      "predicted_bbox_xyxy": [
+        540.7999877929688,
+        284.20001220703125,
+        638.2999877929688,
+        404.1000061035156
+      ],
+      "box_coverage_not_accuracy": [
+        0.2143,
+        0.0
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top01_idx019_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top01_idx019_overlay.png"
+    },
+    {
+      "rank": 2,
+      "index": 45,
+      "score": 0.68945,
+      "mask_pixels": 1777,
+      "predicted_bbox_xyxy": [
+        2.299999952316284,
+        464.20001220703125,
+        150.89999389648438,
+        532.2999877929688
+      ],
+      "box_coverage_not_accuracy": [
+        0.0,
+        0.1299
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top02_idx045_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top02_idx045_overlay.png"
+    },
+    {
+      "rank": 3,
+      "index": 80,
+      "score": 0.64404,
+      "mask_pixels": 731,
+      "predicted_bbox_xyxy": [
+        465.8999938964844,
+        302.3999938964844,
+        531.0999755859375,
+        322.6000061035156
+      ],
+      "box_coverage_not_accuracy": [
+        0.0,
+        0.0
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top03_idx080_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top03_idx080_overlay.png"
+    },
+    {
+      "rank": 4,
+      "index": 21,
+      "score": 0.62158,
+      "mask_pixels": 307,
+      "predicted_bbox_xyxy": [
+        311.79998779296875,
+        6.300000190734863,
+        325.70001220703125,
+        37.5
+      ],
+      "box_coverage_not_accuracy": [
+        0.0,
+        0.0
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top04_idx021_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\top04_idx021_overlay.png"
+    }
+  ],
+  "unions": {
+    "top_n_union": {
+      "indices": [
+        19,
+        45,
+        80,
+        21
+      ],
+      "mask_pixels": 5332,
+      "box_coverage_not_accuracy": [
+        0.2143,
+        0.1299
+      ]
+    },
+    "distinct_top_n_union": {
+      "indices": [
+        19,
+        45,
+        80,
+        21
+      ],
+      "mask_pixels": 5332,
+      "box_coverage_not_accuracy": [
+        0.2143,
+        0.1299
+      ]
+    }
+  },
+  "contact_sheet": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_defect_detection_009125\\box_0\\contact_sheet.png"
+}
