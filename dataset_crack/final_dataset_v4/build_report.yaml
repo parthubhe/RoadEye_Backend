@@ -1,0 +1,109 @@
+version: 4
+dataset: pipe_cctv
+description: Pipe-CCTV only.  It retains named defect classes instead of merging visually
+  different defects into crack, sediment, root, or joint.
+output_dir: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v4
+seed: 42
+image_mode_requested: hardlink
+classes:
+- crack
+- corrosion_rust
+- sediment_deposit
+- root_intrusion
+- joint_defect
+- buckling
+- debris
+- hole
+- joint_offset
+- obstacle
+- utility_intrusion
+input_images_kept: 2628
+groups: 747
+group_split_counts:
+  train: 629
+  valid: 59
+  test: 59
+image_split_counts:
+  train: 1837
+  valid: 393
+  test: 398
+class_split_counts:
+  train:
+    crack: 881
+    corrosion_rust: 454
+    sediment_deposit: 91
+    root_intrusion: 92
+    joint_defect: 277
+    buckling: 100
+    debris: 135
+    hole: 34
+    joint_offset: 274
+    obstacle: 122
+    utility_intrusion: 215
+  valid:
+    crack: 288
+    corrosion_rust: 101
+    sediment_deposit: 19
+    root_intrusion: 26
+    joint_defect: 61
+    buckling: 44
+    debris: 33
+    hole: 8
+    joint_offset: 62
+    obstacle: 45
+    utility_intrusion: 43
+  test:
+    crack: 287
+    corrosion_rust: 98
+    sediment_deposit: 19
+    root_intrusion: 26
+    joint_defect: 60
+    buckling: 57
+    debris: 35
+    hole: 7
+    joint_offset: 70
+    obstacle: 41
+    utility_intrusion: 44
+source_images_by_split:
+  train:
+    sewage_defect_detection: 680
+    sewer_o8use: 1157
+  valid:
+    sewage_defect_detection: 149
+    sewer_o8use: 244
+  test:
+    sewage_defect_detection: 151
+    sewer_o8use: 247
+source_audit:
+  sewer_o8use:
+    source_path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\sewer_remapped
+    images_seen: 2282
+    images_kept: 1648
+    images_skipped_empty_after_mapping: 634
+    missing_labels: 0
+    raw_boxes: 1783
+    mapped_boxes: 1783
+    unmapped_boxes: {}
+  sewage_defect_detection:
+    source_path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\merge_staging\sewage_defect_detection
+    images_seen: 980
+    images_kept: 980
+    images_skipped_empty_after_mapping: 0
+    missing_labels: 0
+    raw_boxes: 2366
+    mapped_boxes: 2366
+    unmapped_boxes: {}
+excluded_sources:
+- id: sewage
+  path: merge_staging/sewage
+  reason: Its classes are anonymous numeric IDs and it shares 801 original frame stems
+    with the named sewage_defect_detection export.  Do not infer its class mapping
+    from filenames or merge it until the original annotation ontology is recovered
+    and audited.
+- id: sewer_defects
+  path: merge_staging/sewer_defects
+  reason: It shares 978 original frame stems with sewage_defect_detection, so including
+    both would duplicate video frames and can leak them across train, validation,
+    and test splits.
+image_materialization:
+  hardlink: 2628

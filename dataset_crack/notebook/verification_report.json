@@ -1,0 +1,150 @@
+[
+  {
+    "experiment": "E1",
+    "base": null,
+    "parameters": 10097544,
+    "strides": [
+      8.0,
+      16.0,
+      32.0,
+      4.0
+    ],
+    "estimated_gflops_640_unfused": 30.352384,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E2",
+    "base": null,
+    "parameters": 11107074,
+    "strides": [
+      8.0,
+      16.0,
+      32.0
+    ],
+    "estimated_gflops_640_unfused": 28.0807424,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E3",
+    "base": null,
+    "parameters": 11319447,
+    "strides": [
+      8.0,
+      16.0,
+      32.0,
+      4.0
+    ],
+    "estimated_gflops_640_unfused": 39.1366656,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E4",
+    "base": null,
+    "parameters": 21780598,
+    "strides": [
+      8.0,
+      16.0,
+      32.0
+    ],
+    "estimated_gflops_640_unfused": 74.9899776,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 756
+  },
+  {
+    "experiment": "E5",
+    "base": null,
+    "parameters": 9986551,
+    "strides": [
+      8.0,
+      16.0,
+      32.0
+    ],
+    "estimated_gflops_640_unfused": 23.2056832,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E6",
+    "base": "E1",
+    "parameters": 10097544,
+    "strides": [
+      8.0,
+      16.0,
+      32.0,
+      4.0
+    ],
+    "estimated_gflops_640_unfused": 30.352384,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E6",
+    "base": "E2",
+    "parameters": 11107074,
+    "strides": [
+      8.0,
+      16.0,
+      32.0
+    ],
+    "estimated_gflops_640_unfused": 28.0807424,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E6",
+    "base": "E3",
+    "parameters": 11319447,
+    "strides": [
+      8.0,
+      16.0,
+      32.0,
+      4.0
+    ],
+    "estimated_gflops_640_unfused": 39.1366656,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "experiment": "E6",
+    "base": "E4",
+    "parameters": 21780598,
+    "strides": [
+      8.0,
+      16.0,
+      32.0
+    ],
+    "estimated_gflops_640_unfused": 74.9899776,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 756
+  },
+  {
+    "experiment": "E6",
+    "base": "E5",
+    "parameters": 9986551,
+    "strides": [
+      8.0,
+      16.0,
+      32.0
+    ],
+    "estimated_gflops_640_unfused": 23.2056832,
+    "backward_finite": true,
+    "checkpoint_reload": true,
+    "pretrained_tensors_loaded": 696
+  },
+  {
+    "synthetic_one_epoch_E3": "passed",
+    "trainer_transfer_verified": true
+  }
+]

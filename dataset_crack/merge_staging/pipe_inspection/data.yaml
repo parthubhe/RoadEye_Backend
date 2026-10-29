@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 3
+names: ['crack', 'rust', 'void']
+
+roboflow:
+  workspace: pipe
+  project: pipe-inspection
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/pipe/pipe-inspection/dataset/1

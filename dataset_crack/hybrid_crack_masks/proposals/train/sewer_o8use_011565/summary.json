@@ -1,0 +1,16 @@
+{
+  "image": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5\\train\\images\\sewer_o8use_011565.jpg",
+  "boxes": [
+    [
+      0.7588385416666666,
+      0.35556481481481483,
+      0.06190625,
+      0.3978611111111111
+    ]
+  ],
+  "experiments": [
+    "box_0",
+    "text_pipe_wall_crack"
+  ],
+  "review_status": "UNREVIEWED \u2014 never use these candidates directly as ground truth"
+}

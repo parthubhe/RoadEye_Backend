@@ -1,0 +1,56 @@
+{
+  "source": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5",
+  "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\rfdetr_local_workspace\\final_dataset_v5_rfdetr_yolo",
+  "counts": {
+    "train": 9486,
+    "valid": 2014,
+    "test": 1986
+  },
+  "classes": [
+    "crack",
+    "corrosion_rust",
+    "sediment_deposit",
+    "root_intrusion",
+    "joint_defect"
+  ],
+  "source_filename_label_sha256": {
+    "train": "7aa8637ac0341ffe1f32c6763f7ded65a899e73ddfefe1bfc8016248ad8b636b",
+    "valid": "1a05b193e098e48953bb3f1f3009559d9d9016a83cf6a0804aafa30cf5fafeb0",
+    "test": "65eb6894d3d3b9091d0f156c8350e98a11e886c6536b83ffcbbcd055ac3b4e5c"
+  },
+  "removed_label_rows": [
+    {
+      "split": "train",
+      "label": "train\\labels\\sewer_o8use_001552.txt",
+      "line": 1,
+      "value": "2 0.445951525291885 0.35181380154793723 0 0",
+      "reason": "zero-size or out-of-range YOLO box"
+    },
+    {
+      "split": "train",
+      "label": "train\\labels\\sewer_o8use_001990.txt",
+      "line": 1,
+      "value": "2 0.445951525291885 0.35181380154793723 0 0",
+      "reason": "zero-size or out-of-range YOLO box"
+    },
+    {
+      "split": "train",
+      "label": "train\\labels\\sewer_o8use_011137.txt",
+      "line": 1,
+      "value": "2 0.445951525291885 0.35181380154793723 0 0",
+      "reason": "zero-size or out-of-range YOLO box"
+    },
+    {
+      "split": "valid",
+      "label": "valid\\labels\\sewer_o8use_000875.txt",
+      "line": 1,
+      "value": "2 0.445951525291885 0.35181380154793723 0 0",
+      "reason": "zero-size or out-of-range YOLO box"
+    }
+  ],
+  "removed_label_row_count": 4,
+  "image_files_removed": 0,
+  "source_modified": false,
+  "image_overlay_method": "hardlink",
+  "preprocessing": "normal v5, no offline CLAHE; invalid YOLO box rows omitted in overlay only"
+}

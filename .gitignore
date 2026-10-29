@@ -25,6 +25,17 @@ assets/
 *.pt
 *.pth
 *.onnx
+*.ckpt
+*.safetensors
+*.tflite
+*.engine
+*.cache
+
+# Local artifact archival and generated example packages
+cleanup_archive/
+dataset_crack/crack_example_review/
+dataset_crack/dry_training_example_review/
+dataset_crack/training_examples_*/
 
 # =========================
 # Large numpy / data files

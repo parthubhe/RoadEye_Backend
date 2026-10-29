@@ -1,0 +1,77 @@
+{
+  "purpose": "Model-selected diagnostic subset; biased evaluation, not an independent benchmark",
+  "source": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5",
+  "csv_inputs": {
+    "FP": {
+      "path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v5_parallel_simam_cbam_se_error_analysis\\false_positives.csv",
+      "rows": 795,
+      "sha256": "b08c80e0991397c6f55c771e78f978c7117da5e14bf85c31372d673d938967bf"
+    },
+    "FN": {
+      "path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\runs\\pipe_proto\\yolo26s_v5_parallel_simam_cbam_se_error_analysis\\false_negatives.csv",
+      "rows": 674,
+      "sha256": "f69a33b302a53ae63bbf7afeb93981b168d8ef149db60723ecd5502037a76ecb"
+    }
+  },
+  "excluded_unique_images": 699,
+  "split_counts": {
+    "train": {
+      "before": 9486,
+      "excluded": 0,
+      "retained": 9486,
+      "instances_before": {
+        "crack": 6358,
+        "corrosion_rust": 1821,
+        "sediment_deposit": 631,
+        "root_intrusion": 413,
+        "joint_defect": 1693
+      },
+      "instances_retained": {
+        "crack": 6358,
+        "corrosion_rust": 1821,
+        "sediment_deposit": 631,
+        "root_intrusion": 413,
+        "joint_defect": 1693
+      }
+    },
+    "val": {
+      "before": 2014,
+      "excluded": 0,
+      "retained": 2014,
+      "instances_before": {
+        "crack": 1208,
+        "corrosion_rust": 397,
+        "sediment_deposit": 139,
+        "root_intrusion": 93,
+        "joint_defect": 348
+      },
+      "instances_retained": {
+        "crack": 1208,
+        "corrosion_rust": 397,
+        "sediment_deposit": 139,
+        "root_intrusion": 93,
+        "joint_defect": 348
+      }
+    },
+    "test": {
+      "before": 1986,
+      "excluded": 699,
+      "retained": 1287,
+      "instances_before": {
+        "crack": 1396,
+        "corrosion_rust": 394,
+        "sediment_deposit": 152,
+        "root_intrusion": 70,
+        "joint_defect": 363
+      },
+      "instances_retained": {
+        "crack": 396,
+        "corrosion_rust": 281,
+        "sediment_deposit": 77,
+        "root_intrusion": 50,
+        "joint_defect": 223
+      }
+    }
+  },
+  "original_files_deleted": 0
+}

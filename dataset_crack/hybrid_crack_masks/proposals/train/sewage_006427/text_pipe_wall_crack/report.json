@@ -1,0 +1,24 @@
+{
+  "experiment": "text_pipe_wall_crack",
+  "seconds": 0.36,
+  "detections_above_threshold": 0,
+  "top_n": 4,
+  "candidates": [],
+  "unions": {
+    "top_n_union": {
+      "indices": [],
+      "mask_pixels": 0,
+      "box_coverage_not_accuracy": [
+        0.0
+      ]
+    },
+    "distinct_top_n_union": {
+      "indices": [],
+      "mask_pixels": 0,
+      "box_coverage_not_accuracy": [
+        0.0
+      ]
+    }
+  },
+  "contact_sheet": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewage_006427\\text_pipe_wall_crack\\contact_sheet.png"
+}

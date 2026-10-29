@@ -1,0 +1,7 @@
+{
+  "source_archive": "results_E3_p2_weighted_fusion_v5_normal_seed0_20260928_165814_0161fd.zip",
+  "checkpoint": "best.pt",
+  "validation_only": false,
+  "test_evaluation_available": true,
+  "test_summary": "test_summary.json"
+}

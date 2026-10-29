@@ -1,0 +1,121 @@
+{
+  "experiment": "box_3",
+  "seconds": 0.59,
+  "detections_above_threshold": 119,
+  "top_n": 4,
+  "candidates": [
+    {
+      "rank": 1,
+      "index": 107,
+      "score": 0.83105,
+      "mask_pixels": 1259,
+      "predicted_bbox_xyxy": [
+        307.70001220703125,
+        1.2000000476837158,
+        373.5,
+        105.0999984741211
+      ],
+      "box_coverage_not_accuracy": [
+        0.0,
+        0.0,
+        0.0,
+        0.1934
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top01_idx107_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top01_idx107_overlay.png"
+    },
+    {
+      "rank": 2,
+      "index": 17,
+      "score": 0.68408,
+      "mask_pixels": 369,
+      "predicted_bbox_xyxy": [
+        585.2999877929688,
+        610.7000122070312,
+        627.5999755859375,
+        640.9000244140625
+      ],
+      "box_coverage_not_accuracy": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top02_idx017_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top02_idx017_overlay.png"
+    },
+    {
+      "rank": 3,
+      "index": 13,
+      "score": 0.67188,
+      "mask_pixels": 4297,
+      "predicted_bbox_xyxy": [
+        403.8999938964844,
+        473.20001220703125,
+        589.2000122070312,
+        640.5999755859375
+      ],
+      "box_coverage_not_accuracy": [
+        0.1489,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top03_idx013_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top03_idx013_overlay.png"
+    },
+    {
+      "rank": 4,
+      "index": 40,
+      "score": 0.5957,
+      "mask_pixels": 871,
+      "predicted_bbox_xyxy": [
+        204.89999389648438,
+        544.9000244140625,
+        266.8999938964844,
+        570.5
+      ],
+      "box_coverage_not_accuracy": [
+        0.0,
+        0.0054,
+        0.0,
+        0.0
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top04_idx040_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\top04_idx040_overlay.png"
+    }
+  ],
+  "unions": {
+    "top_n_union": {
+      "indices": [
+        107,
+        17,
+        13,
+        40
+      ],
+      "mask_pixels": 6796,
+      "box_coverage_not_accuracy": [
+        0.1489,
+        0.0054,
+        0.0,
+        0.1934
+      ]
+    },
+    "distinct_top_n_union": {
+      "indices": [
+        107,
+        17,
+        13,
+        40
+      ],
+      "mask_pixels": 6796,
+      "box_coverage_not_accuracy": [
+        0.1489,
+        0.0054,
+        0.0,
+        0.1934
+      ]
+    }
+  },
+  "contact_sheet": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_experiments_20261016_093429_781469\\box_3\\contact_sheet.png"
+}

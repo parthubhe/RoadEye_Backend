@@ -1,0 +1,156 @@
+{
+  "runs/pipe_proto/yolo26n_v4_pipe_cctv_clahe": {
+    "parameters": 2508090,
+    "gflops": 5.914,
+    "imgsz": 640,
+    "checkpoint_bytes": 20794244,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26n_v4_pipe_cctv_clahe-3": {
+    "parameters": 9956378,
+    "gflops": 22.783,
+    "imgsz": 640,
+    "checkpoint_bytes": 20334656,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v5_cctv": {
+    "parameters": 9951734,
+    "gflops": 22.757,
+    "imgsz": 640,
+    "checkpoint_bytes": 20322693,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v5_clahe_cbam": {
+    "parameters": 9953880,
+    "gflops": 22.76,
+    "imgsz": 640,
+    "checkpoint_bytes": 20329334,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v5_clahe_se": {
+    "parameters": 9953918,
+    "gflops": 22.758,
+    "imgsz": 640,
+    "checkpoint_bytes": 20329201,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v5_clahe_simam": {
+    "parameters": 9951734,
+    "gflops": 22.757,
+    "imgsz": 640,
+    "checkpoint_bytes": 20322373,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v5_parallel_simam_cbam_se": {
+    "parameters": 10021857,
+    "gflops": 23.607,
+    "imgsz": 640,
+    "checkpoint_bytes": 20471551,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v6_normal_error_filtered_diagnostic_seed0_20260929_184244_3e235d15": {
+    "parameters": 9951734,
+    "gflops": 22.757,
+    "imgsz": 640,
+    "checkpoint_bytes": 20322885,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v6_normal_error_filtered_diagnostic_seed0_20260930_185252_27442ffa": {
+    "parameters": 9951734,
+    "gflops": 22.757,
+    "imgsz": 640,
+    "checkpoint_bytes": 80384005,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/pipe_proto/yolo26s_v6_normal_error_filtered_diagnostic_seed0_20260930_190356_a5b23911": {
+    "parameters": 9951734,
+    "gflops": 22.757,
+    "imgsz": 640,
+    "checkpoint_bytes": 20322885,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_cbam_v1-2": {
+    "parameters": 2510008,
+    "gflops": 5.903,
+    "imgsz": 640,
+    "checkpoint_bytes": 5395062,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_cbam_v1_140ep": {
+    "parameters": 2510008,
+    "gflops": 5.903,
+    "imgsz": 640,
+    "checkpoint_bytes": 5402742,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_final_merged-3": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5395077,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_final_merged-5": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 20781829,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_final_merged-6": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5395077,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_final_merged-7": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5395205,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_simam_v1-2": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5391877,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_simam_v1-4": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5384197,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_v1-4": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5384453,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "runs/detect/runs/pipe_proto/yolo26n_v1-5": {
+    "parameters": 2505750,
+    "gflops": 5.901,
+    "imgsz": 640,
+    "checkpoint_bytes": 5384453,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "notebook/runs/E5_directional_v5_normal_seed0_20260928_185759_471e27": {
+    "parameters": 9986551,
+    "gflops": 23.206,
+    "imgsz": 640,
+    "checkpoint_bytes": 20396312,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  },
+  "notebook/runs/E6_E3_single_simam_v5_normal_seed0_20260928_225358_f163f4": {
+    "parameters": 11319447,
+    "gflops": 39.137,
+    "imgsz": 640,
+    "checkpoint_bytes": 91727777,
+    "method": "Ultralytics get_flops (THOP), nominal forward pass at saved imgsz"
+  }
+}

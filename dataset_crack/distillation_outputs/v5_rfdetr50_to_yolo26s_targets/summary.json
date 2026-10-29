@@ -1,0 +1,10 @@
+{
+  "train_images": 9486,
+  "teacher_boxes_added": 6,
+  "added_by_class": {
+    "crack": 4,
+    "sediment_deposit": 1,
+    "corrosion_rust": 1
+  },
+  "validation_and_test_unchanged": true
+}

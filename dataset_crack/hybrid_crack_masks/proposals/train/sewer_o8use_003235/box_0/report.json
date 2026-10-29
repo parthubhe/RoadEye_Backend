@@ -1,0 +1,84 @@
+{
+  "experiment": "box_0",
+  "seconds": 1.32,
+  "detections_above_threshold": 85,
+  "top_n": 3,
+  "candidates": [
+    {
+      "rank": 1,
+      "index": 61,
+      "score": 0.92627,
+      "mask_pixels": 83091,
+      "predicted_bbox_xyxy": [
+        840.2999877929688,
+        316.6000061035156,
+        1636.5,
+        972.5999755859375
+      ],
+      "box_coverage_not_accuracy": [
+        0.1538
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\top01_idx061_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\top01_idx061_overlay.png"
+    },
+    {
+      "rank": 2,
+      "index": 53,
+      "score": 0.2876,
+      "mask_pixels": 14832,
+      "predicted_bbox_xyxy": [
+        637.2999877929688,
+        308.79998779296875,
+        853.5,
+        463.29998779296875
+      ],
+      "box_coverage_not_accuracy": [
+        0.0004
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\top02_idx053_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\top02_idx053_overlay.png"
+    },
+    {
+      "rank": 3,
+      "index": 21,
+      "score": 0.25562,
+      "mask_pixels": 11097,
+      "predicted_bbox_xyxy": [
+        1024.0,
+        229.0,
+        1147.5999755859375,
+        357.0
+      ],
+      "box_coverage_not_accuracy": [
+        0.003
+      ],
+      "mask": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\top03_idx021_mask.png",
+      "overlay": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\top03_idx021_overlay.png"
+    }
+  ],
+  "unions": {
+    "top_n_union": {
+      "indices": [
+        61,
+        53,
+        21
+      ],
+      "mask_pixels": 109020,
+      "box_coverage_not_accuracy": [
+        0.1572
+      ]
+    },
+    "distinct_top_n_union": {
+      "indices": [
+        61,
+        53,
+        21
+      ],
+      "mask_pixels": 109020,
+      "box_coverage_not_accuracy": [
+        0.1572
+      ]
+    }
+  },
+  "contact_sheet": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\proposals\\train\\sewer_o8use_003235\\box_0\\contact_sheet.png"
+}

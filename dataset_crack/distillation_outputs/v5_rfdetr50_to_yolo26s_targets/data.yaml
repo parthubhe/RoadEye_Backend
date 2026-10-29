@@ -1,0 +1,11 @@
+path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\distillation_outputs\v5_rfdetr50_to_yolo26s_targets
+train: train/images
+val: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v5\valid\images
+test: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v5\test\images
+nc: 5
+names:
+  0: crack
+  1: corrosion_rust
+  2: sediment_deposit
+  3: root_intrusion
+  4: joint_defect

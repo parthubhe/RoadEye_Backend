@@ -1,0 +1,20 @@
+created_at_utc: '2026-09-23T09:53:16.983628+00:00'
+source_dataset: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v5
+output_dataset: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v5_no_sediment
+removed_class: sediment_deposit
+removed_class_id_before_filter: 2
+classes_after_filter:
+- crack
+- corrosion_rust
+- root_intrusion
+- joint_defect
+images_by_split:
+  train: 9486
+  valid: 2014
+  test: 1986
+removed_instances: 922
+dropped_empty_images: 0
+malformed_label_rows_skipped: 0
+empty_images_retained: true
+image_materialization:
+  hardlink: 13486

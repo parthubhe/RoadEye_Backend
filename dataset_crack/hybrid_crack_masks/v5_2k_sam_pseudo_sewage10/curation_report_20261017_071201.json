@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-10-17T07:12:01.901174+05:30",
+  "subset_root": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\v5_2k_sam_pseudo_sewage10",
+  "manifest": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\hybrid_crack_masks\\v5_2k_sam_pseudo_sewage10\\manifest.csv",
+  "manifest_sha256": "ebcf10407133033e2392f85c783e1138beab344e9a7d456aa6e161c601336f0b",
+  "total_manifest_rows": 2000,
+  "active_masks": 1455,
+  "excluded_rows": 545,
+  "active_by_split_kind": {
+    "train": {
+      "positive": 1141,
+      "negative": 85
+    },
+    "valid": {
+      "positive": 112,
+      "negative": 0
+    },
+    "test": {
+      "positive": 117,
+      "negative": 0
+    }
+  },
+  "active_by_source_family": {
+    "sewage": 36,
+    "sewage_defect_detection": 343,
+    "sewer_defects": 369,
+    "sewer_o8use": 707
+  },
+  "full_v5_train_images": 9486,
+  "excluded_from_full_v5_train": 374,
+  "effective_full_v5_train_images": 9112,
+  "warning": "No validation/test negative masks remain; mask false-positive rate cannot be evaluated there. SAM masks remain pseudo-labels, not verified ground truth."
+}

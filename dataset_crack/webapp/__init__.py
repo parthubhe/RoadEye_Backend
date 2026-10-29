@@ -1,0 +1,1 @@
+"""PipeScout local inference console."""

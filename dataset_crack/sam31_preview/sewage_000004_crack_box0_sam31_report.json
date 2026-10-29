@@ -1,0 +1,25 @@
+{
+  "image": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5\\test\\images\\sewage_000004.jpg",
+  "labels": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5\\test\\labels\\sewage_000004.txt",
+  "checkpoint": "D:\\ComfyUI_Assets\\Models\\checkpoints\\sam3.1_multiplex_fp16.safetensors",
+  "sam_code": "C:\\Users\\parth\\Documents\\ComfyUI\\custom_nodes\\comfyui-easy-sam3",
+  "box_index": 0,
+  "yolo_xywh": [
+    0.69921875,
+    0.85546875,
+    0.1453125,
+    0.2390625
+  ],
+  "resolution": 1008,
+  "threshold": 0.2,
+  "checkpoint_key_coverage": 0.9673721340388007,
+  "detections": 52,
+  "best_score": 0.91650390625,
+  "mask_pixels": 2074,
+  "image_pixels": 409600,
+  "load_seconds": 13.69,
+  "inference_seconds": 2.07,
+  "peak_vram_gib": 5.29,
+  "mask_path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_crack_box0_sam31_mask.png",
+  "overlay_path": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\sam31_preview\\sewage_000004_crack_box0_sam31_overlay.png"
+}

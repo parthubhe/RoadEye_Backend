@@ -1,0 +1,10 @@
+path: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\hybrid_crack_masks\v5_2k_sam_pseudo_sewage10
+train: train/images
+val: valid/images
+test: test/images
+names:
+  0: crack
+  1: corrosion_rust
+  2: sediment_deposit
+  3: root_intrusion
+  4: joint_defect

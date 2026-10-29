@@ -1,0 +1,25 @@
+version: 5
+source_dataset: D:\Study Material\Sem VI\Projects\PBL2\RoadEye\dataset_crack\final_dataset_v2
+split_strategy: Exact final_dataset_v2 split assignments
+classes:
+- crack
+- corrosion_rust
+- sediment_deposit
+- root_intrusion
+- joint_defect
+images_by_split:
+  train: 9486
+  valid: 2014
+  test: 1986
+images_retained: 13486
+excluded_by_domain:
+  pipe_inspection: 348
+  pipeline_crack_detection: 4571
+excluded_prefixes:
+- pipeline_crack_detection_
+- pipe_inspection_
+image_mode: hardlink
+image_materialization:
+  hardlink: 13486
+empty_labels_retained: true
+note: No v4 empty/unmapped filtering; only close-up domain images removed.

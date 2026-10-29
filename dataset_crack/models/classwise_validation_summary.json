@@ -1,0 +1,51 @@
+{
+  "split": "val",
+  "selection_basis": "AP50 on the same 2014 v5 validation image IDs; CLAHE models use CLAHE pixels",
+  "imgsz": 640,
+  "models": {
+    "yolo26s_v5_baseline": {
+      "mAP50": 0.8255542110947717,
+      "mAP50_95": 0.6557652834800273,
+      "AP50": {
+        "crack": 0.7006647068757474,
+        "corrosion_rust": 0.9358814827193861,
+        "sediment_deposit": 0.7699985619405116,
+        "root_intrusion": 0.9308994929751372,
+        "joint_defect": 0.7903268109630762
+      }
+    },
+    "yolo26s_v5_clahe_simam": {
+      "mAP50": 0.8244345740674437,
+      "mAP50_95": 0.6446841912995648,
+      "AP50": {
+        "crack": 0.7091746362835565,
+        "corrosion_rust": 0.9272455085325783,
+        "sediment_deposit": 0.7400009000199379,
+        "root_intrusion": 0.9448523472891308,
+        "joint_defect": 0.8008994782120145
+      }
+    },
+    "yolo26s_v5_clahe_cbam": {
+      "mAP50": 0.8260477608297773,
+      "mAP50_95": 0.632324159699718,
+      "AP50": {
+        "crack": 0.7065332910389974,
+        "corrosion_rust": 0.9154489382265368,
+        "sediment_deposit": 0.7683733481255828,
+        "root_intrusion": 0.955172973431529,
+        "joint_defect": 0.7847102533262406
+      }
+    },
+    "p2_weighted_fusion": {
+      "mAP50": 0.8218406488005134,
+      "mAP50_95": 0.6501513649662489,
+      "AP50": {
+        "crack": 0.6920942154937334,
+        "corrosion_rust": 0.9280877469386356,
+        "sediment_deposit": 0.7410729782838396,
+        "root_intrusion": 0.951503162237832,
+        "joint_defect": 0.7964451410485269
+      }
+    }
+  }
+}

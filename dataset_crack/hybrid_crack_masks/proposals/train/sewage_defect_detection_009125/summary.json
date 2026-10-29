@@ -1,0 +1,23 @@
+{
+  "image": "D:\\Study Material\\Sem VI\\Projects\\PBL2\\RoadEye\\dataset_crack\\final_dataset_v5\\train\\images\\sewage_defect_detection_009125.jpg",
+  "boxes": [
+    [
+      0.921875,
+      0.540625,
+      0.1515625,
+      0.1875
+    ],
+    [
+      0.13203125,
+      0.78515625,
+      0.2359375,
+      0.13671875
+    ]
+  ],
+  "experiments": [
+    "box_0",
+    "box_1",
+    "text_pipe_wall_crack"
+  ],
+  "review_status": "UNREVIEWED \u2014 never use these candidates directly as ground truth"
+}
