@@ -1,5 +1,5 @@
 """Build a non-overwriting v5 training overlay with RF-DETR hard targets.
-
+r
 Ground-truth boxes are retained. Only high-confidence teacher detections that
 do not overlap a ground-truth box are added. Validation and test images/labels
 are referenced unchanged; the teacher never predicts on those splits here.
