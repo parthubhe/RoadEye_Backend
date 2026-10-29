@@ -1,0 +1,5 @@
+ultralytics==8.4.120
+huggingface_hub>=1.0,<3.0
+PyYAML>=6.0
+Pillow>=10.0
+# Keep Colab/Kaggle's CUDA-enabled torch and torchvision installations.

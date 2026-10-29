@@ -57,6 +57,7 @@ dataset_crack/training_examples_*/
 *.tar
 *.gz
 *.txt
+!requirements-pipescout.txt
 # =========================
 # Environment variables
 # =========================

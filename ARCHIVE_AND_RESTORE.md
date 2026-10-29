@@ -13,8 +13,10 @@ older pothole models, are stored under `models/archive_20261029/weights/`.
 `models/archive_20261029/model_inventory.json` maps original paths to remote
 files and SHA-256 checksums. Duplicate local files share one remote backup.
 
-After creating a Python environment and installing the project's required
-packages, list archived model paths:
+After creating a Python environment, use `requirements-pipescout.txt` for the
+PipeScout dependency snapshot. The older root `requirements.txt` belongs to the
+original pothole setup. Select an appropriate PyTorch/CUDA build for the target
+machine. To list archived model paths:
 
 ```powershell
 python scripts\restore_archived_models.py
