@@ -64,9 +64,11 @@ def remote_audit():
 
 def backup_models():
     os.environ['HF_HUB_DISABLE_XET']='1'
+    os.environ['HF_HUB_DISABLE_PROGRESS_BARS']='1'
     from huggingface_hub import HfApi
     api=HfApi()
-    inventory=json.loads((STATE/'remote_inventory.json').read_text())
+    progress=STATE/'model_backup_progress.json'
+    inventory=json.loads((progress if progress.exists() else STATE/'remote_inventory.json').read_text())
     groups={}
     for row in inventory['weights']:groups.setdefault(row['sha256'],[]).append(row)
     def priority(item):

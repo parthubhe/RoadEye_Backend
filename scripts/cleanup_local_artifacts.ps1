@@ -84,4 +84,15 @@ if ($RemoveEnvironment) {
  if (Test-Path -LiteralPath $environmentPath) { Remove-Item -LiteralPath $environmentPath -Recurse -Force }
  Write-Output 'Removed local venv; recreate dependencies before running the server.'
 }
+foreach ($relative in $directories) {
+ $target = [System.IO.Path]::GetFullPath((Join-Path $project $relative))
+ if (-not $target.StartsWith($project+'\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Invalid prune target.' }
+ if (-not (Test-Path -LiteralPath $target)) { continue }
+ Get-ChildItem -LiteralPath $target -Directory -Recurse -Force | Sort-Object { $_.FullName.Length } -Descending | ForEach-Object {
+  if (-not ($_.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -and @(Get-ChildItem -LiteralPath $_.FullName -Force).Count -eq 0) {
+   Remove-Item -LiteralPath $_.FullName -Force
+  }
+ }
+ if (@(Get-ChildItem -LiteralPath $target -Force).Count -eq 0) { Remove-Item -LiteralPath $target -Force }
+}
 Write-Output "Removed $removed files. Audit log: $log"
